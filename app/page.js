@@ -1,65 +1,115 @@
-import Image from "next/image";
+import { getSafeAuthSession } from "@/auth";
+import { redirect } from "next/navigation";
+import Link from "next/link";
+import { BusFront, ArrowRight, User, Terminal, ShieldCheck, Cpu } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
 
-export default function Home() {
+export default async function Home() {
+  const session = await getSafeAuthSession();
+
+  // Redirect authenticated users to their specific universes
+  if (session?.user?.role === "driver") {
+    redirect("/driverhome");
+  }
+  if (session?.user?.role === "student") {
+    redirect("/studenthome");
+  }
+  if (session?.user?.role === "admin") {
+    redirect("/adminhome");
+  }
+
+  // Guest view - Master Portal
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
+    <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center p-6 text-center font-mono relative overflow-hidden">
+       
+       {/* Background Aesthetic */}
+       <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#39FF14]/5 rounded-full blur-[120px] animate-pulse" />
+          <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#39FF14]/20 to-transparent" />
+       </div>
+
+       <div className="relative z-10 w-full max-w-6xl">
+          <div className="w-16 h-16 bg-[#39FF14]/10 rounded-2xl flex items-center justify-center mx-auto mb-8 border border-[#39FF14]/20">
+             <BusFront className="text-[#39FF14] w-8 h-8" />
+          </div>
+          
+          <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-4">
+             Smart<span className="text-[#39FF14]">Transit</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          
+          <p className="text-white/40 max-w-md mx-auto text-[10px] font-black uppercase tracking-[0.4em] mb-16 leading-relaxed">
+             Global Transport Logistics Neural Grid.<br/>
+             Select Operational Protocol to Continue.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+             <RoleCard 
+                icon={<User size={32} />} 
+                title="Student Hub" 
+                desc="Live tracking, route analytics, and boarding sync." 
+                href="/login?role=student"
+                label="Initialize_Student"
+             />
+             <RoleCard 
+                icon={<Terminal size={32} />} 
+                title="Driver Terminal" 
+                desc="Technical telemetry, mission protocol, and neural safety." 
+                href="/login?role=driver"
+                label="Launch_Driver_Ops"
+                highlight
+             />
+             <RoleCard 
+                icon={<ShieldCheck size={32} />} 
+                title="Admin Console" 
+                desc="Fleet compliance, RTO gateway, and master grid control." 
+                href="/login?role=admin"
+                label="Access_Command_Core"
+             />
+          </div>
+
+          <div className="mt-20 flex justify-center items-center gap-10 opacity-20 grayscale">
+             <div className="flex items-center gap-2"><Cpu size={14} /> <span className="text-[9px] font-black uppercase">v2.4_Stable</span></div>
+             <div className="flex items-center gap-2"><Terminal size={14} /> <span className="text-[9px] font-black uppercase">Auth_Secure</span></div>
+          </div>
+       </div>
     </div>
   );
+}
+
+function RoleCard({ icon, title, desc, href, label, highlight }) {
+   return (
+      <Link href={href} className={cn(
+         "group p-10 rounded-[2.5rem] border transition-all duration-500 flex flex-col items-center text-center space-y-6 relative overflow-hidden",
+         highlight 
+            ? "bg-[#39FF14]/5 border-[#39FF14]/30 hover:border-[#39FF14] shadow-[0_0_40px_rgba(57,255,20,0.1)] hover:shadow-[0_0_60px_rgba(57,255,20,0.2)]" 
+            : "bg-white/[0.02] border-white/5 hover:border-white/20 hover:bg-white/[0.04]"
+      )}>
+         <div className={cn(
+            "w-20 h-20 rounded-3xl flex items-center justify-center transition-all duration-500",
+            highlight ? "bg-[#39FF14]/10 text-[#39FF14] group-hover:scale-110" : "bg-white/5 text-white/40 group-hover:text-white group-hover:scale-110"
+         )}>
+            {icon}
+         </div>
+         <div className="space-y-3">
+            <h3 className="text-2xl font-black uppercase tracking-tight">{title}</h3>
+            <p className="text-white/40 text-[11px] font-bold uppercase tracking-wider leading-relaxed">
+               {desc}
+            </p>
+         </div>
+         <div className="pt-4 w-full">
+            <div className={cn(
+               "w-full py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 transition-all",
+               highlight 
+                  ? "bg-[#39FF14] text-black group-hover:bg-[#32e612]" 
+                  : "bg-white/5 text-white/40 group-hover:bg-white/10 group-hover:text-white border border-transparent group-hover:border-white/20"
+            )}>
+               {label} <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+            </div>
+         </div>
+         
+         {/* HUD Corner Decor */}
+         <div className="absolute top-6 left-6 w-4 h-4 border-t-2 border-l-2 border-current opacity-10" />
+         <div className="absolute bottom-6 right-6 w-4 h-4 border-b-2 border-r-2 border-current opacity-10" />
+      </Link>
+   );
 }

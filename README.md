@@ -1,36 +1,115 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# CampusRide (Phase 1)
 
-## Getting Started
+CampusRide is a Next.js App Router project for college bus tracking with persistent backend data, student onboarding, and live GPS updates.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Next.js + React
+- NextAuth (GitHub + Google)
+- MongoDB + Mongoose
+- Redis (ioredis) for live bus location cache (`bus:live:{busId}` TTL 30s)
+- Socket.IO for real-time GPS ingestion and broadcast
+- Leaflet / React-Leaflet for maps
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Implemented in Phase 1
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- Persistent models in `models/`: `User`, `Bus`, `Route`, `Notification`
+- MongoDB singleton connection: `lib/mongodb.ts`
+- Redis singleton client: `lib/redis.ts`
+- ETA utility with Haversine: `lib/eta.ts`
+- Socket server singleton + GPS events: `lib/socket.ts`
+- Socket init API: `GET /api/socketio`
+- Role-aware auth + Mongo upsert + onboarding flags in `auth.js`
+- Role/onboarding routing middleware in `middleware.ts`
+- Student onboarding page: `/onboarding`
+- Student profile page: `/profile` (route + boarding stop edits)
+- Driver page: `/driver` with Start Trip / End Trip GPS broadcast
+- Student-centric tracking page `/tracking` with:
+  - My Route cards
+  - Other Routes accordion
+  - Live map with student marker (device geolocation)
+  - Live bus updates via `bus:moved`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## API Routes
 
-## Learn More
+- `GET /api/buses`
+- `GET /api/buses/[id]`
+- `GET /api/routes`
+- `GET /api/routes/[id]`
+- `GET /api/notifications`
+- `POST /api/notifications/mark-read`
+- `GET /api/user/profile`
+- `PATCH /api/user/profile`
+- `GET /api/admin/buses`
+- `POST /api/admin/buses`
+- `DELETE /api/admin/buses/[id]`
+- `GET /api/admin/routes`
+- `POST /api/admin/routes`
+- `PATCH /api/admin/routes/[id]`
+- `POST /api/chat`
 
-To learn more about Next.js, take a look at the following resources:
+## Prerequisites
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Before running the application, ensure you have the following installed and running:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Node.js** (v18+)
+- **MongoDB** (Local or Atlas)
+- **Redis** (Required for live tracking cache)
+- **Python 3.10+** (Required for Fatigue Detection Service)
 
-## Deploy on Vercel
+## Setup
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. **Clone and Install Node Dependencies**
+   ```bash
+   git clone <repo-url>
+   cd smarttransit
+   npm install
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+2. **Configure Environment Variables**
+   Copy the example environment file and fill in your credentials:
+   ```bash
+   cp .env.example .env.local
+   ```
+   *Note: Ensure `MONGODB_URI` and `REDIS_URL` are correct.*
+
+3. **Setup Fatigue Detection Service (Python)**
+   ```bash
+   cd fatigue-service
+   python -m venv venv
+   # Windows:
+   .\venv\Scripts\activate
+   # Linux/Mac:
+   source venv/bin/activate
+
+   pip install -r requirements.txt
+   ```
+
+4. **Seed Database**
+   ```bash
+   # From the smarttransit directory
+   npm run seed
+   ```
+
+## Running the Project
+
+You need to run both the Next.js app and the Fatigue Service:
+
+1. **Start Next.js (Terminal 1)**
+   ```bash
+   npm run dev
+   ```
+
+2. **Start Fatigue Service (Terminal 2)**
+   ```bash
+   cd fatigue-service
+   # Activate venv if not already active
+   python main.py
+   # Or using uvicorn:
+   # uvicorn main:app --port 8000
+   ```
+
+
+## License
+
+MIT
