@@ -2,7 +2,13 @@ import cv2
 import mediapipe as mp
 import numpy as np
 
-mp_face_mesh = mp.solutions.face_mesh
+try:
+    mp_face_mesh = mp.solutions.face_mesh
+except AttributeError:
+    from mediapipe.python.solutions import face_mesh as mp_face_mesh
+
+
+
 
 # MediaPipe landmark indices for left and right eye
 LEFT_EYE  = [362, 385, 387, 263, 373, 380]
