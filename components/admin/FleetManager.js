@@ -19,7 +19,7 @@ export default function FleetManager() {
 
   const fleetList = [
     { id: "KA01SY0421", reg: "KA 01 SY 0421", model: "Tata Starbus 40S", status: "Active" },
-    { id: "MH12AB1234", reg: "MH 12 AB 1234", model: "Ashok Leyland 52S", status: "Maintenance" },
+    { id: "KA07Y3705", reg: "KA 07 Y 3705", model: "Honda City 125", status: "Active" },
     { id: "KL01BZ5566", reg: "KL 01 BZ 5566", model: "Eicher Skyline 32S", status: "Active" },
   ];
 

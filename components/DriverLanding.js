@@ -244,11 +244,6 @@ export default function DriverLanding({ session }) {
         </div>
 
         <nav className="hidden lg:flex items-center gap-12">
-          <div className="flex gap-10 border-r border-white/10 pr-12">
-            <NavOption label="Surface_Home" href="/" />
-            <NavOption label="Mission_Logs" href="/dhistory" />
-            <NavOption label="Tactical_Terminal" href="/driver" active />
-          </div>
 
           <div className="relative">
             <div 

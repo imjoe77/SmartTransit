@@ -71,11 +71,6 @@ export default function AdminLanding({ session }) {
         </div>
 
         <nav className="hidden lg:flex items-center gap-12">
-          <div className="flex gap-10 border-r border-white/10 pr-12">
-            <NavOption label="Grid_Home" href="/" />
-            <NavOption label="Terminal_Core" href="/admin" />
-            <NavOption label="Root_Profile" href="/admin" active />
-          </div>
 
           <div className="relative">
             <div 

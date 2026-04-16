@@ -11,7 +11,7 @@ const RouteKnowledgeSchema = new mongoose.Schema({
 // Avoid OverwriteModelError in Next.js development
 export const RouteKnowledge = mongoose.models.RouteKnowledge || mongoose.model("RouteKnowledge", RouteKnowledgeSchema, "routeknowledge");
 
-async function getEmbedding(text) {
+async function getEmbedding(text: string): Promise<number[]> {
   // If no OpenAI key is present, fallback to a deterministic pseudo-random embedding for demo safely mapped
   // This allows the app to compile and run even if they lack an OpenAI Key just for embeddings
   if (!process.env.OPENAI_API_KEY) {
@@ -57,6 +57,8 @@ export async function initKnowledge() {
   
   // Use raw MongoDB collection reads to avoid Mongoose .lean() serialization issues
   const db = mongoose.connection.db;
+  if (!db) return { success: false, error: "Database connection failed" };
+  
   const routes = await db.collection("routes").find({}).toArray();
   const buses = await db.collection("buses").find({}).toArray();
   const triplogs = await db.collection("triplogs").find({}).toArray();
@@ -115,7 +117,7 @@ export async function initKnowledge() {
   return { success: true, count: docsIndexed };
 }
 
-export async function answerScheduleQuery(question) {
+export async function answerScheduleQuery(question: string): Promise<string> {
   await connectToDatabase();
   
   // First check if we have any valid knowledge docs at all
@@ -129,13 +131,13 @@ export async function answerScheduleQuery(question) {
     return "I don't have that information yet. The schedule knowledge base hasn't been set up. Please check with your transport office.";
   }
   
-  let results = validDocs; // default: use all valid docs as context
+  let results: any[] = validDocs; // default: use all valid docs as context
   
   try {
     // Attempt 1: Atlas Vector Search (Best)
     if (process.env.OPENAI_API_KEY) {
       const queryEmbedding = await getEmbedding(question);
-      const vectorResults = await mongoose.connection.db.collection('routeknowledge').aggregate([
+      const vectorResults = await mongoose.connection.db!.collection('routeknowledge').aggregate([
         {
           $vectorSearch: {
             index: 'schedule_vector_index',
@@ -205,7 +207,7 @@ export async function answerScheduleQuery(question) {
   return payload?.choices?.[0]?.message?.content || "Message generation failed.";
 }
 
-export async function predictDelay(routeId, busId, dayOfWeek, scheduledDeparture) {
+export async function predictDelay(routeId: string, busId: string, dayOfWeek: number, scheduledDeparture: string): Promise<string> {
   // ─── Fetch RAG context from the knowledge base ───
   await connectToDatabase();
   let ragContext = "";
@@ -288,9 +290,17 @@ ADVICE: [General behavioral guidance like 'leave early' or 'likely to miss this'
   return payload?.choices?.[0]?.message?.content || `PREDICTION: On Time\nESTIMATED: 0 minutes\nCONFIDENCE: Low\nREASON: Data unavailable.\nADVICE: Use the live tracking map for updates.`;
 }
 
-export function parseDelayPrediction(raw) {
+interface DelayPrediction {
+  prediction: string;
+  estimatedDelay: string;
+  confidence: string;
+  reason: string;
+  advice: string;
+}
+
+export function parseDelayPrediction(raw: string): DelayPrediction {
   const lines = (raw || "").split('\n');
-  const extract = (key) => {
+  const extract = (key: string) => {
       const line = lines.find(l => l.toUpperCase().startsWith(key));
       return line ? line.substring(key.length).trim().replace(/^:\s*/, "") : "";
   };

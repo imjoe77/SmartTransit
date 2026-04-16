@@ -10,7 +10,10 @@ export default function TransitTracking() {
   const topbarRef = useRef(null);
   const contentMapRef = useRef(null);
   const contentStopsRef = useRef(null);
-
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline();
+      
       // Ensure elements exist before animating
       const elements = [sidebarRef.current, topbarRef.current, contentMapRef.current, contentStopsRef.current].filter(Boolean);
       const overlay = overlayRef.current;

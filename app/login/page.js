@@ -1,34 +1,21 @@
-"use client";
-
-import { Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
 import AdminLogin from "@/components/AdminLogin/page";
 import DriverLogin from "@/components/DriverLogin/page";
 import StudentLogin from "@/components/StudentLogin/page";
 
-function LoginContent() {
-  const searchParams = useSearchParams();
-  const role = searchParams.get("role") || "student";
+export default async function LoginPage({ searchParams }) {
+  // In modern Next.js, searchParams is an async promise that should be awaited
+  const params = await searchParams;
+  const role = params?.role || "student";
 
-  // Use the dedicated AdminLogin component when logging in as admin
+  // Render the appropriate login interface based on the role resolved on the server
   if (role === "admin") {
     return <AdminLogin />;
   }
 
-  // Use the dedicated DriverLogin component when logging in as driver
   if (role === "driver") {
     return <DriverLogin />;
   }
 
-  // Fallback to the dedicated StudentLogin for student and any other roles
+  // Fallback to student login
   return <StudentLogin />;
-}
-
-export default function LoginPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-[#020617] flex items-center justify-center"><div className="animate-spin rounded-full border-t-2 border-emerald-500 w-8 h-8"></div></div>}>
-      <LoginContent />
-    </Suspense>
-  );
 }
