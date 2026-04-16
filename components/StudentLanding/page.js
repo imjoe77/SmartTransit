@@ -152,6 +152,14 @@ export default function StudentLanding({ session }) {
           <h1 className="font-black text-lg tracking-tight text-white uppercase italic">Smart<span className="text-emerald-400">Transit</span></h1>
         </div>
 
+        {/* CENTER NAV */}
+        <nav className="hidden md:flex items-center gap-10">
+          <Link href="/studenthome" className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-400 border-b-2 border-emerald-400 pb-1 hover:text-white transition-all">Node_Status</Link>
+          <Link href="/tracking" className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 hover:text-emerald-400 transition-all">Tactical_Map</Link>
+          <Link href="/chat" className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 hover:text-emerald-400 transition-all">AI_Uplink</Link>
+          <Link href="/profile" className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 hover:text-emerald-400 transition-all">Operator_ID</Link>
+        </nav>
+
         <nav className="flex items-center gap-8">
           <div className="relative">
              <button 
