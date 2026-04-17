@@ -7,6 +7,9 @@ import HeatmapClient from "./HeatmapClient";
 import FleetManager from "./FleetManager";
 import { cn } from "@/lib/utils/cn";
 import { ShieldCheck } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const LeafletBusMap = dynamic(() => import("@/components/dashboard/LeafletBusMap"), { ssr: false });
 
 export default function AdminClient() {
   const [buses, setBuses] = useState([]);
@@ -24,6 +27,7 @@ export default function AdminClient() {
   const [drivers, setDrivers] = useState([]);
   const [boardingEvents, setBoardingEvents] = useState({});
   const [activeProminentAlert, setActiveProminentAlert] = useState(null);
+  const [selectedTrackingBus, setSelectedTrackingBus] = useState(null);
 
   const load = useCallback(async () => {
     try {
@@ -79,8 +83,17 @@ export default function AdminClient() {
 
   useEffect(() => {
     const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4001");
-    
+
+    socket.on("connect", () => {
+       console.log("[Socket] Connected to relay at:", socket.io.uri);
+    });
+
+    socket.on("connect_error", (err) => {
+       console.error("[Socket] Connection Error:", err.message);
+    });
+
     socket.on("safety:panic", (data) => {
+      console.log("[Socket] RECEIVED PANIC SIGNAL:", data);
       const alert = { ...data, type: "panic", id: Date.now() };
       setSafetyAlerts(prev => [alert, ...prev]);
       setActiveProminentAlert(alert);
@@ -88,18 +101,32 @@ export default function AdminClient() {
     });
 
     socket.on("safety:overspeed", (data) => {
+      console.log("[Socket] RECEIVED OVERSPEED:", data);
       setSafetyAlerts(prev => [{ ...data, type: "overspeed", id: Date.now() }, ...prev]);
     });
 
     socket.on("safety:idle", (data) => {
+      console.log("[Socket] RECEIVED IDLE ALERT:", data);
       setSafetyAlerts(prev => [{ ...data, type: "idle", id: Date.now() }, ...prev]);
     });
 
     socket.on("safety:fatigue", (data) => {
+      console.log("[Socket] RECEIVED FATIGUE SIGNAL:", data);
       const alert = { ...data, type: "fatigue", id: Date.now() };
       setSafetyAlerts(prev => [alert, ...prev]);
       setActiveProminentAlert(alert);
       new Audio("/alert.mp3").play().catch(() => {});
+    });
+
+    socket.on("bus:moved", (data) => {
+      setBuses(currentBuses => 
+        currentBuses.map(b => b.busId === data.busId ? { 
+          ...b, 
+          ...data, 
+          coordinates: { lat: data.lat, lng: data.lng }, 
+          status: 'active' 
+        } : b)
+      );
     });
 
     return () => socket.disconnect();
@@ -428,9 +455,18 @@ export default function AdminClient() {
 
              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                {buses.map((bus) => {
-                 const stats = analytics[bus.busId] || { total: 0 };
-                 return (
-                   <div key={bus._id || bus.busId} className="group relative bg-black/40 border border-white/5 hover:border-blue-500/40 rounded-[2rem] p-6 transition-all hover:shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                  const stats = analytics[bus.busId] || { total: 0 };
+                  return (
+                    <div 
+                      key={bus._id || bus.busId} 
+                      onClick={() => bus.lat && setSelectedTrackingBus(bus)}
+                      className={cn(
+                        "group relative bg-black/40 border-2 border-white/5 hover:border-blue-500/40 rounded-[2rem] p-6 transition-all hover:shadow-[0_0_30px_rgba(0,0,0,0.5)] cursor-pointer",
+                        bus.lat ? "hover:scale-[1.02]" : "opacity-80"
+                      )}
+                    >
+                       {/* GLOW EFFECT ON ACTIVE UNITS */}
+                       {bus.status === 'active' && <div className="absolute inset-0 bg-blue-500/5 blur-2xl rounded-[2rem] -z-10" />}
                       <div className="flex justify-between items-start mb-6">
                          <div>
                             <span className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em] block mb-1">Unit_ID</span>
@@ -644,6 +680,47 @@ export default function AdminClient() {
           }
         `}</style>
       </div>
+
+      {/* TACTICAL LIVE TRACKING MODAL */}
+      {selectedTrackingBus && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-xl p-4 md:p-10 animate-in fade-in duration-300">
+           <div className="w-full max-w-5xl bg-slate-950 rounded-[3rem] border border-white/10 overflow-hidden shadow-[0_0_100px_rgba(37,99,235,0.2)] flex flex-col h-full max-h-[85vh]">
+              <div className="bg-white/5 p-8 border-b border-white/10 flex justify-between items-center">
+                 <div>
+                    <h2 className="text-3xl font-black text-white uppercase tracking-tighter mb-1">Live_Unit_Intercept</h2>
+                    <p className="text-[10px] font-bold text-blue-400 uppercase tracking-[0.4em]">Tracking Node: {selectedTrackingBus.busId}</p>
+                 </div>
+                 <button 
+                  onClick={() => setSelectedTrackingBus(null)}
+                  className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all font-bold"
+                 >
+                   ✕
+                 </button>
+              </div>
+              <div className="flex-1 p-2 bg-black">
+                 <LeafletBusMap buses={[selectedTrackingBus]} />
+              </div>
+              <div className="p-8 bg-white/5 border-t border-white/10 grid grid-cols-2 md:grid-cols-4 gap-6">
+                 <div>
+                    <p className="text-[8px] font-black text-white/30 uppercase mb-1">Active_Route</p>
+                    <p className="text-[11px] font-bold text-white truncate">{selectedTrackingBus.routeName || "N/A"}</p>
+                 </div>
+                 <div>
+                    <p className="text-[8px] font-black text-white/30 uppercase mb-1">Current_ETA</p>
+                    <p className="text-[11px] font-bold text-blue-400 uppercase">~{selectedTrackingBus.eta || 1} MIN</p>
+                 </div>
+                 <div>
+                    <p className="text-[8px] font-black text-white/30 uppercase mb-1">Next_Signal</p>
+                    <p className="text-[11px] font-bold text-emerald-400 truncate uppercase">{selectedTrackingBus.nextStop || "Searching..."}</p>
+                 </div>
+                 <div>
+                    <p className="text-[8px] font-black text-white/30 uppercase mb-1">Payload_Mass</p>
+                    <p className="text-[11px] font-bold text-white uppercase">{selectedTrackingBus.seatsOccupied || 0} PAX</p>
+                 </div>
+              </div>
+           </div>
+        </div>
+      )}
     </div>
   );
 }
