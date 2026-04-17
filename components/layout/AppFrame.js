@@ -110,6 +110,33 @@ function buildNav(role) {
   return base;
 }
 
+function NavItems({ navItems, pathname, orientation = "horizontal", onNavigate, theme }) {
+  const isVertical = orientation === "vertical";
+
+  return (
+    <nav className={cn("flex items-center", isVertical ? "flex-col gap-2" : "gap-2")}>
+      {navItems.map((item) => {
+        const Icon = item.icon;
+        const active = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={onNavigate}
+            className={cn(
+              "group inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold uppercase tracking-widest transition-all",
+              isVertical ? "w-full justify-start" : "",
+              active
+                ? cn(theme.colors.activeBg, theme.colors.text, "border border-slate-800")
+                : cn("text-slate-400 hover:text-white hover:bg-slate-900", theme.colors.bgHover)
+            )}
+          >
+            <Icon size={16} className={cn("transition-transform group-hover:scale-110", active ? theme.colors.text : "")} />
+            <span>{item.label}</span>
+          </Link>
+        );
+      })}
     </nav>
   );
 }
