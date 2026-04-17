@@ -2,9 +2,12 @@
 import { useState } from "react";
 
 import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 
 export default function AdminLogin() {
   const [token, setToken] = useState("");
+  const searchParams = useSearchParams();
+  const error = searchParams.get("error");
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -62,6 +65,18 @@ export default function AdminLogin() {
             Safe Secure Login System _
           </div>
         </div>
+
+        {/* ERROR MESSAGE */}
+        {error && (
+          <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/50 backdrop-blur-md animate-bounce">
+            <p className="text-red-400 text-sm font-bold text-center uppercase tracking-widest">
+              ⚠️ Unauthorized Identity Detected
+            </p>
+            <p className="text-red-500/80 text-[10px] text-center mt-1 uppercase">
+              Access Denied for this sector
+            </p>
+          </div>
+        )}
 
         {/* FORM */}
         <div className="relative rounded-2xl bg-[#0b1227]/70 backdrop-blur-3xl p-8 border border-cyan-500/20 shadow-[0_0_50px_rgba(6,182,212,0.15)]">
