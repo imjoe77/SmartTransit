@@ -81,22 +81,26 @@ export default function DriverClient() {
     [routes, selectedBus]
   );
 
-  const emitPoint = (point) => {
-    const socket = socketRef.current;
-    if (socket && socket.connected) {
-      socket.emit("gps:update", point);
-      return true;
+  const emitPoint = async (point) => {
+    try {
+      const response = await fetch("/api/driver/gps/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(point),
+      });
+      return response.ok;
+    } catch {
+      return false;
     }
-    return false;
   };
 
-  const flushQueue = () => {
+  const flushQueue = async () => {
     const queue = getQueue();
     if (!queue.length) return;
 
     const remaining = [];
     for (const point of queue) {
-      const sent = emitPoint(point);
+      const sent = await emitPoint(point);
       if (!sent) {
         remaining.push(point);
       }
@@ -159,10 +163,11 @@ export default function DriverClient() {
         }
 
         lastEmitRef.current = now;
-        const sent = emitPoint(point);
-        if (!sent) {
-          enqueuePoint(point);
-        }
+        emitPoint(point).then((sent) => {
+          if (!sent) {
+            enqueuePoint(point);
+          }
+        });
       },
       (error) => {
         setStatus(error.message || "Unable to read GPS");
@@ -180,10 +185,14 @@ export default function DriverClient() {
     await startWatcher(selectedBusId, (driver?.email || selectedBus?.driverEmail || "").toLowerCase(), false);
   };
 
-  const endTrip = () => {
+  const endTrip = async () => {
     stopWatcher();
-    if (socketRef.current && selectedBusId) {
-      socketRef.current.emit("gps:end", { busId: selectedBusId });
+    if (selectedBusId) {
+      await fetch("/api/driver/gps/end", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ busId: selectedBusId }),
+      }).catch(() => null);
     }
     setTripActive(false);
     tripActiveRef.current = false;

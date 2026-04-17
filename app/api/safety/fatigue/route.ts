@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import { NotificationModel } from "@/models/Notification";
-import { ensureSocketServer } from "@/lib/socket/socket";
+import { emitSocketEvent } from "@/lib/socket/socket";
 
 // Use 127.0.0.1 instead of localhost — on Windows, localhost often
 // resolves to IPv6 ::1 while Python/FastAPI binds to IPv4 only.
@@ -116,19 +116,16 @@ export async function POST(req: Request) {
         targetRole: "admin",
       });
 
-      const { io } = await ensureSocketServer();
-      if (io) {
-        io.emit("safety:fatigue", {
-          busId,
-          driverId: driverId || null,
-          ear: ear ?? null,
-          coordinates: coordinates || null,
-          timestamp: new Date().toISOString(),
-          googleMapsLink: coordinates
-            ? `https://www.google.com/maps?q=${coordinates.lat},${coordinates.lng}`
-            : null,
-        });
-      }
+      await emitSocketEvent("safety:fatigue", {
+        busId,
+        driverId: driverId || null,
+        ear: ear ?? null,
+        coordinates: coordinates || null,
+        timestamp: new Date().toISOString(),
+        googleMapsLink: coordinates
+          ? `https://www.google.com/maps?q=${coordinates.lat},${coordinates.lng}`
+          : null,
+      });
 
       return NextResponse.json({ success: true });
     }

@@ -4,7 +4,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { BusModel } from "@/models/Bus";
 import { BoardingModel } from "@/models/Boarding";
 import { UserModel } from "@/models/User";
-import { ensureSocketServer } from "@/lib/socket/socket";
+import { emitSocketEvent } from "@/lib/socket/socket";
 import crypto from "crypto";
 import { Types } from "mongoose";
 
@@ -90,9 +90,7 @@ export async function POST(req) {
     bus.seatsOccupied = seatsOccupied;
     await bus.save();
 
-    // Emit Socket
-    const { io } = await ensureSocketServer();
-    io.emit("bus:seats:updated", {
+    await emitSocketEvent("bus:seats:updated", {
       busId: bus.busId,
       seatsOccupied: bus.seatsOccupied
     });

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import { PanicAlertModel } from "@/models/PanicAlert";
 import { NotificationModel } from "@/models/Notification";
-import { ensureSocketServer } from "@/lib/socket/socket";
+import { emitSocketEvent } from "@/lib/socket/socket";
 
 export async function POST(req: Request) {
   try {
@@ -37,18 +37,14 @@ export async function POST(req: Request) {
       targetRole: "admin",
     });
 
-    // Emit via Socket.IO
-    const { io } = await ensureSocketServer();
-    if (io) {
-      io.emit("safety:panic", {
-        driverId,
-        busId,
-        routeId,
-        coordinates,
-        timestamp: panicAlert.timestamp,
-        googleMapsLink: `https://www.google.com/maps?q=${coordinates.lat},${coordinates.lng}`,
-      });
-    }
+    await emitSocketEvent("safety:panic", {
+      driverId,
+      busId,
+      routeId,
+      coordinates,
+      timestamp: panicAlert.timestamp,
+      googleMapsLink: `https://www.google.com/maps?q=${coordinates.lat},${coordinates.lng}`,
+    });
 
     return NextResponse.json({ success: true, alert: panicAlert });
   } catch (error: any) {
