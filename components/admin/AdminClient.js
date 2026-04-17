@@ -6,7 +6,7 @@ import { ArrowRight, Bus, Activity, User, ShieldAlert, LayoutDashboard } from "l
 import HeatmapClient from "./HeatmapClient";
 import FleetManager from "./FleetManager";
 import { cn } from "@/lib/utils/cn";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, MapPinned } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const LeafletBusMap = dynamic(() => import("@/components/dashboard/LeafletBusMap"), { ssr: false });
@@ -241,51 +241,6 @@ export default function AdminClient() {
 
   return (
     <div className="space-y-10 pb-20 font-mono">
-      {/* PROMINENT EMERGENCY OVERLAY */}
-      {activeProminentAlert && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-2xl p-6 animate-in fade-in duration-300">
-           <div className={cn(
-             "w-full max-w-2xl p-10 rounded-[3rem] border-4 shadow-[0_0_100px_rgba(255,0,0,0.4)] flex flex-col items-center text-center space-y-8 animate-in zoom-in-95 duration-500",
-             activeProminentAlert.type === 'panic' ? 'bg-red-950/80 border-red-500 shadow-red-500/30' : 'bg-purple-950/80 border-purple-500 shadow-purple-500/30'
-           )}>
-             <div className={cn(
-               "w-32 h-32 rounded-[2rem] flex items-center justify-center text-6xl shadow-2xl animate-[emergency_1s_infinite_alternate]",
-               activeProminentAlert.type === 'panic' ? 'bg-red-600' : 'bg-purple-600'
-             )}>
-                {activeProminentAlert.type === 'panic' ? '🚨' : '😴'}
-             </div>
-             
-             <div className="space-y-4">
-                <h2 className="text-5xl font-black text-white uppercase tracking-tighter leading-tight">
-                   {activeProminentAlert.type === 'panic' ? 'CRITICAL_SOS_SIGNAL' : 'DRIVER_FATIGUE_ALARM'}
-                </h2>
-                <div className="flex flex-wrap justify-center gap-4 text-[12px] font-black text-white/60 tracking-[0.2em] uppercase">
-                   <div className="bg-white/10 px-4 py-2 rounded-full border border-white/10">Unit: {activeProminentAlert.busId}</div>
-                   {activeProminentAlert.ear && <div className="bg-white/10 px-4 py-2 rounded-full border border-white/10">EAR_IDX: {activeProminentAlert.ear.toFixed(2)}</div>}
-                   {activeProminentAlert.timestamp && <div className="bg-white/10 px-4 py-2 rounded-full border border-white/10">TS: {new Date(activeProminentAlert.timestamp).toLocaleTimeString()}</div>}
-                </div>
-             </div>
-
-             <div className="w-full grid gap-4">
-                {activeProminentAlert.googleMapsLink && (
-                  <a 
-                    href={activeProminentAlert.googleMapsLink} 
-                    target="_blank" 
-                    className="w-full py-6 bg-white text-black rounded-3xl font-black uppercase text-sm tracking-widest hover:scale-[1.02] active:scale-95 transition-all text-center"
-                  >
-                    📍 Intercept_Coordinates_On_Map
-                  </a>
-                )}
-                <button 
-                  onClick={() => setActiveProminentAlert(null)}
-                  className="w-full py-6 bg-white/10 hover:bg-white/20 text-white rounded-3xl font-black uppercase text-sm tracking-widest border border-white/20 transition-all"
-                >
-                  Acknowledge_And_Minimize
-                </button>
-             </div>
-           </div>
-        </div>
-      )}
       {/* TACTICAL ALERTS - High Priority Interruptions */}
       <div className="space-y-4">
         {safetyAlerts.map((alert) => (
@@ -479,7 +434,19 @@ export default function AdminClient() {
                             )}>
                                {bus.status}
                             </span>
-                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_#3b82f6]" />
+                             {bus.status === 'active' && (
+                               <button 
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   setSelectedTrackingBus(bus);
+                                 }}
+                                 className="w-7 h-7 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-500 hover:bg-blue-500 hover:text-white transition-all shadow-inner"
+                                 title="Track Live Location"
+                                >
+                                 <MapPinned size={14} />
+                               </button>
+                             )}
+                             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_#3b82f6]" />
                          </div>
                       </div>
 
@@ -718,6 +685,61 @@ export default function AdminClient() {
                     <p className="text-[11px] font-bold text-white uppercase">{selectedTrackingBus.seatsOccupied || 0} PAX</p>
                  </div>
               </div>
+           </div>
+        </div>
+      )}
+      {/* PROMINENT EMERGENCY OVERLAY */}
+      {activeProminentAlert && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/95 backdrop-blur-3xl p-6 animate-in fade-in duration-300">
+           <div className={cn(
+             "w-full max-w-2xl p-10 rounded-[4rem] border-4 shadow-[0_0_150px_rgba(255,0,0,0.5)] flex flex-col items-center text-center space-y-10 animate-in zoom-in-95 duration-500",
+             activeProminentAlert.type === 'panic' ? 'bg-red-950/90 border-red-500 shadow-red-500/40' : 'bg-purple-950/90 border-purple-500 shadow-purple-500/40'
+           )}>
+             <div className={cn(
+               "w-32 h-32 rounded-[2.5rem] flex items-center justify-center text-6xl shadow-2xl animate-[emergency_1.5s_infinite_alternate]",
+               activeProminentAlert.type === 'panic' ? 'bg-red-600' : 'bg-purple-600'
+             )}>
+                {activeProminentAlert.type === 'panic' ? '🚨' : '😴'}
+             </div>
+             
+             <div className="space-y-6">
+                <h2 className="text-6xl font-black text-white uppercase tracking-tighter leading-[0.9] text-balance">
+                   {activeProminentAlert.type === 'panic' ? 'CRITICAL SOS SIGNAL' : 'DRIVER FATIGUE ALARM'}
+                </h2>
+                <div className="flex flex-wrap justify-center gap-4 text-[12px] font-black text-white/60 tracking-[0.3em] uppercase">
+                   <div className="bg-white/10 px-5 py-2.5 rounded-full border border-white/10 flex items-center gap-2">
+                     <span className="w-2 h-2 rounded-full bg-blue-400" /> Unit: {activeProminentAlert.busId}
+                   </div>
+                   {activeProminentAlert.ear != null && (
+                     <div className="bg-white/10 px-5 py-2.5 rounded-full border border-white/10 flex items-center gap-2">
+                       <span className="w-2 h-2 rounded-full bg-purple-400" /> EAR_IDX: {Number(activeProminentAlert.ear).toFixed(2)}
+                     </div>
+                   )}
+                   {activeProminentAlert.timestamp && (
+                     <div className="bg-white/10 px-5 py-2.5 rounded-full border border-white/10 flex items-center gap-2">
+                       <span className="w-2 h-2 rounded-full bg-emerald-400" /> TS: {new Date(activeProminentAlert.timestamp).toLocaleTimeString()}
+                     </div>
+                   )}
+                </div>
+             </div>
+
+             <div className="w-full grid gap-5 pt-6">
+                {activeProminentAlert.googleMapsLink && (
+                  <a 
+                    href={activeProminentAlert.googleMapsLink} 
+                    target="_blank" 
+                    className="w-full py-7 bg-[#39FF14] text-black rounded-3xl font-black uppercase text-sm tracking-[0.2em] hover:scale-[1.03] active:scale-95 transition-all text-center flex items-center justify-center gap-4 shadow-[0_0_30px_rgba(57,255,20,0.4)]"
+                  >
+                    <MapPinned size={22} /> Intercept_On_Google_Maps
+                  </a>
+                )}
+                <button 
+                  onClick={() => setActiveProminentAlert(null)}
+                  className="w-full py-7 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white rounded-3xl font-black uppercase text-xs tracking-[0.2em] border border-white/10 transition-all backdrop-blur-md"
+                >
+                  Acknowledge_And_Archive
+                </button>
+             </div>
            </div>
         </div>
       )}
