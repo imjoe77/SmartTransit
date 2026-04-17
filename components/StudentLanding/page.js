@@ -182,7 +182,8 @@ export default function StudentLanding({ session }) {
                     <NavOption label="Node Status" href="/studenthome" active={pathname === "/studenthome"} />
                     <NavOption label="Tactical Map" href="/tracking" active={pathname === "/tracking"} />
                     <NavOption label="AI Uplink" href="/chat" active={pathname === "/chat"} />
-                    <NavOption label="Operator ID" href="/profile" active={pathname === "/profile"} />
+                    <NavOption label="Path Engine" href="/route" active={pathname === "/route"} />
+                    <NavOption label="Identity" href="/profile" active={pathname === "/profile"} />
                  </div>
 
                  <div className="mt-auto pt-8 border-t border-white/5">
@@ -215,10 +216,11 @@ export default function StudentLanding({ session }) {
 
         {/* CENTER NAV */}
         <nav className="hidden md:flex items-center gap-10">
-          <NavOption label="Node Status" href="/studenthome" active={pathname === "/studenthome"} />
-          <NavOption label="Tactical Map" href="/tracking" active={pathname === "/tracking"} />
-          <NavOption label="AI Uplink" href="/chat" active={pathname === "/chat"} />
-          <NavOption label="Operator ID" href="/profile" active={pathname === "/profile"} />
+           <NavOption label="Node Status" href="/studenthome" active={pathname === "/studenthome"} />
+                    <NavOption label="Tactical Map" href="/tracking" active={pathname === "/tracking"} />
+                    <NavOption label="AI Uplink" href="/chat" active={pathname === "/chat"} />
+                    <NavOption label="Path Engine" href="/route" active={pathname === "/route"} />
+                    <NavOption label="Identity" href="/profile" active={pathname === "/profile"} />
         </nav>
 
         <nav className="flex items-center gap-8">
