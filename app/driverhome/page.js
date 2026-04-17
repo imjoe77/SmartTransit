@@ -11,7 +11,7 @@ export default async function DriverHomePage() {
   }
 
   if (session.user?.role !== "driver") {
-    redirect("/");
+    redirect("/login?role=driver&error=UnauthorizedDriver");
   }
 
   return <DriverLanding session={session} />;
