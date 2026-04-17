@@ -110,33 +110,38 @@ function buildNav(role) {
   return base;
 }
 
-function NavItems({ navItems, pathname, onNavigate, orientation = "horizontal", theme }) {
-  return (
-    <nav className={cn(
-      "flex gap-1",
-      orientation === "vertical" ? "flex-col space-y-1" : "items-center"
-    )}>
-      {navItems.map((item) => {
-        const Icon = item.icon;
-        const active = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            onClick={onNavigate}
-            className={cn(
-              "flex items-center gap-2 rounded-lg px-4 py-2 text-sm transition-all duration-200",
-              active
-                ? `${theme.colors.activeBg} font-bold ${theme.colors.text}`
-                : `text-slate-400 hover:bg-slate-800 ${theme.colors.textHover}`
-            )}
-          >
-            <Icon size={16} />
-            <span>{item.label}</span>
-          </Link>
-        );
-      })}
     </nav>
+  );
+}
+
+function MobileBottomNav({ navItems, pathname, theme }) {
+  return (
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-slate-950/90 backdrop-blur-2xl border-t border-white/10 px-4 py-3 pb-8 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+      <div className="flex justify-around items-center">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const active = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex flex-col items-center gap-1 transition-all duration-300",
+                active ? theme.colors.text : "text-slate-500 hover:text-slate-300"
+              )}
+            >
+              <div className={cn(
+                "p-2 rounded-xl transition-all",
+                active && `${theme.colors.activeBg} shadow-[0_0_15px_rgba(0,0,0,0.3)]`
+              )}>
+                <Icon size={22} strokeWidth={active ? 2.5 : 2} />
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-widest">{item.label}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -246,35 +251,35 @@ export default function AppFrame({ session, children, title, subtitle, variant =
         scrolled ? "pt-4" : "pt-0"
       )}>
         <div className={cn(
-          "mx-auto flex items-center justify-between transition-all duration-700 ease-in-out px-6 lg:px-10",
+          "mx-auto flex items-center justify-between transition-all duration-700 ease-in-out px-4 md:px-6 lg:px-10 font-mono",
           scrolled 
-            ? cn("w-[95%] max-w-6xl h-20 rounded-[2.5rem] bg-[#0f172a]/95 border border-[#39FF14]/20 backdrop-blur-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] ring-1 ring-[#39FF14]/30", 
+            ? cn("w-[95%] md:w-[98%] max-w-6xl h-16 md:h-20 rounded-2xl md:rounded-[2.5rem] bg-[#0f172a]/95 border border-[#39FF14]/20 backdrop-blur-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] ring-1 ring-[#39FF14]/30", 
                  role === 'admin' && 'border-indigo-500/30 ring-indigo-500/30 shadow-[0_0_40px_rgba(99,102,241,0.1)]',
                  role === 'driver' && 'border-[#39FF14]/30 ring-[#39FF14]/30 shadow-[0_0_40px_rgba(57,255,20,0.1)]',
                  role === 'student' && 'border-emerald-400/30 ring-emerald-400/30 shadow-[0_0_40px_rgba(52,211,153,0.1)]'
               )
-            : "w-full h-24 bg-transparent border-b border-white/5 backdrop-blur-md"
+            : "w-full h-20 md:h-24 bg-transparent border-b border-white/5 backdrop-blur-md"
         )}>
           <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-3 group">
+            <Link href="/" className="flex items-center gap-2 md:gap-3 group">
               <div className={cn(
-                "p-2.5 rounded-2xl transition-all duration-500 group-hover:rotate-12 group-hover:scale-110", 
+                "p-2 md:p-2.5 rounded-xl md:rounded-2xl transition-all duration-500 group-hover:rotate-12 group-hover:scale-110", 
                 theme.colors.iconContainer,
                 scrolled && "shadow-[0_0_15px_currentColor]"
               )}>
-                <Bus size={22} className="transition-transform" />
+                <Bus size={18} className="md:w-[22px] md:h-[22px] transition-transform" />
               </div>
               <div className="flex flex-col">
                 <span className={cn(
-                  "text-xl font-black tracking-tighter uppercase transition-all duration-500 text-white",
-                  scrolled ? "scale-95 origin-left" : "scale-100"
+                  "text-lg md:text-xl font-black tracking-tighter uppercase transition-all duration-500 text-white",
+                  scrolled ? "scale-90 md:scale-95 origin-left" : "scale-100"
                 )}>
                   Smart<span className={theme.colors.text}>Transit</span>
                 </span>
                 {session?.user && (
-                   <div className="flex items-center gap-1.5 overflow-hidden h-4 transition-all duration-500">
+                   <div className="flex items-center gap-1.5 overflow-hidden h-3 md:h-4 transition-all duration-500">
                       <span className={cn("w-1 h-1 rounded-full animate-pulse", theme.colors.text.replace('text-', 'bg-'))} />
-                      <span className={cn("text-[8px] font-black uppercase tracking-[0.2em]", theme.colors.text)}>
+                      <span className={cn("text-[7px] md:text-[8px] font-black uppercase tracking-[0.2em]", theme.colors.text)}>
                         {theme.name}_Active
                       </span>
                    </div>
@@ -411,9 +416,12 @@ export default function AppFrame({ session, children, title, subtitle, variant =
       {!isTripPage && <div className={cn("transition-all duration-500", scrolled ? "h-24" : "h-24")} />}
 
       {/* Main Content */}
-      <main className="flex-1">
+      <main className="flex-1 pb-24 md:pb-0">
         {content}
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav navItems={navItems} pathname={pathname} theme={theme} />
 
       {/* Footer */}
       <footer className="border-t border-slate-900 bg-slate-950/50 py-8">

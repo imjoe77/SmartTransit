@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { 
   ArrowRight, Map, BusFront, ShieldCheck, Ticket, 
   GraduationCap, Bot, User, Zap, Smartphone, ChevronDown, 
-  Sparkles, Clock, Globe, ShieldAlert, Navigation2, Activity, MapPinned, LogOut
+  Sparkles, Clock, Globe, ShieldAlert, Navigation2, Activity, MapPinned, LogOut, Menu, X
 } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,9 +19,11 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function StudentLanding({ session }) {
   const router = useRouter();
+  const pathname = usePathname();
   const containerRef = useRef(null);
   const [loginDropdownOpen, setLoginDropdownOpen] = useState(false);
   const [activeUser, setActiveUser] = useState(session?.user || null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleStudentLoginClick = (e) => {
     e.preventDefault();
@@ -149,15 +151,74 @@ export default function StudentLanding({ session }) {
           <div className="w-9 h-9 bg-emerald-500 rounded-lg flex items-center justify-center text-slate-950 shadow-lg group-hover:bg-emerald-400 transition-all">
              <GraduationCap className="w-5 h-5" />
           </div>
-          <h1 className="font-black text-lg tracking-tight text-white uppercase italic">Smart<span className="text-emerald-400">Transit</span></h1>
+           <h1 className="font-black text-lg tracking-tight text-white uppercase italic">Smart<span className="text-emerald-400">Transit</span></h1>
         </div>
+
+        {/* Mobile Menu Button */}
+        <div className="md:hidden flex items-center gap-4">
+           <button 
+             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+             className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-emerald-400 active:scale-90 transition-all"
+           >
+             {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+           </button>
+        </div>
+
+        {/* Mobile Navigation Overlay */}
+        <AnimatePresence>
+           {isMobileMenuOpen && (
+              <motion.div 
+                 initial={{ opacity: 0, x: 20 }}
+                 animate={{ opacity: 1, x: 0 }}
+                 exit={{ opacity: 0, x: 20 }}
+                 className="fixed inset-y-0 right-0 w-72 bg-slate-950/95 backdrop-blur-2xl border-l border-emerald-500/20 z-[100] md:hidden p-8 flex flex-col"
+              >
+                 <div className="flex justify-between items-center mb-12">
+                    <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.5em]">Operators_Log</span>
+                    <button onClick={() => setIsMobileMenuOpen(false)} className="text-white/40"><X size={20} /></button>
+                 </div>
+                 
+                 <div className="flex-1 space-y-6">
+                    <NavOption label="Node Status" href="/studenthome" active={pathname === "/studenthome"} />
+                    <NavOption label="Tactical Map" href="/tracking" active={pathname === "/tracking"} />
+                    <NavOption label="AI Uplink" href="/chat" active={pathname === "/chat"} />
+                    <NavOption label="Operator ID" href="/profile" active={pathname === "/profile"} />
+                 </div>
+
+                 <div className="mt-auto pt-8 border-t border-white/5">
+                    {activeUser ? (
+                       <div className="space-y-6">
+                          <div className="flex items-center gap-4">
+                             <Avatar className="w-10 h-10 border border-emerald-500/30">
+                                <AvatarImage src={activeUser.image} />
+                                <AvatarFallback className="bg-emerald-500 text-slate-900 font-bold">{activeUser.name?.[0]}</AvatarFallback>
+                             </Avatar>
+                             <div>
+                                <p className="text-xs font-black text-white">{activeUser.name}</p>
+                                <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Active_Session</p>
+                             </div>
+                          </div>
+                          <button onClick={() => signOut({ callbackUrl: "/" })} className="w-full py-4 rounded-xl bg-red-500/10 text-red-500 font-black text-[10px] uppercase tracking-widest border border-red-500/20">
+                             Terminate Session
+                          </button>
+                       </div>
+                    ) : (
+                       <div className="space-y-4">
+                          <DropdownLink href="/login?role=student" icon={<GraduationCap size={14} />} label="Student Access" />
+                          <DropdownLink href="/login?role=driver" icon={<BusFront size={14} />} label="Driver Node" />
+                       </div>
+                    )}
+                 </div>
+              </motion.div>
+           )}
+        </AnimatePresence>
 
         {/* CENTER NAV */}
         <nav className="hidden md:flex items-center gap-10">
-          <Link href="/studenthome" className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-400 border-b-2 border-emerald-400 pb-1 hover:text-white transition-all">Node_Status</Link>
-          <Link href="/tracking" className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 hover:text-emerald-400 transition-all">Tactical_Map</Link>
-          <Link href="/chat" className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 hover:text-emerald-400 transition-all">AI_Uplink</Link>
-          <Link href="/profile" className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 hover:text-emerald-400 transition-all">Operator_ID</Link>
+          <NavOption label="Node Status" href="/studenthome" active={pathname === "/studenthome"} />
+          <NavOption label="Tactical Map" href="/tracking" active={pathname === "/tracking"} />
+          <NavOption label="AI Uplink" href="/chat" active={pathname === "/chat"} />
+          <NavOption label="Operator ID" href="/profile" active={pathname === "/profile"} />
         </nav>
 
         <nav className="flex items-center gap-8">
@@ -226,7 +287,7 @@ export default function StudentLanding({ session }) {
             </motion.div>
 
             <div className="space-y-4">
-               <h1 ref={addToTextRefs} className="text-5xl md:text-7xl lg:text-8xl font-black leading-[0.9] tracking-tighter uppercase italic text-white drop-shadow-2xl">
+               <h1 ref={addToTextRefs} className="text-5xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tighter uppercase italic text-white drop-shadow-2xl">
                   Precision <br />
                   <span className="text-emerald-400">Transiting.</span>
                </h1>
@@ -235,16 +296,16 @@ export default function StudentLanding({ session }) {
                </p>
             </div>
 
-            <div ref={addToTextRefs} className="flex flex-wrap items-center justify-center gap-6 pt-4">
+            <div ref={addToTextRefs} className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 pt-4 w-full">
                <button 
                   onClick={handleStudentLoginClick}
-                  className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-10 py-4 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center gap-3 transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
+                  className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-8 md:px-10 py-4 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 transition-all shadow-xl shadow-emerald-500/20 active:scale-95 w-full sm:w-auto"
                >
                   Authorize Console <ArrowRight size={14} />
                </button>
                <Link 
                   href="/chat"
-                  className="bg-white/5 hover:bg-white/10 border border-white/10 px-10 py-4 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center gap-3 transition-all text-white/80"
+                  className="bg-white/5 hover:bg-white/10 border border-white/10 px-8 md:px-10 py-4 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 transition-all text-white/80 w-full sm:w-auto"
                >
                   Query AI Assistant <Bot size={14} />
                </Link>
@@ -332,6 +393,21 @@ export default function StudentLanding({ session }) {
       `}} />
     </div>
   );
+}
+
+function NavOption({ label, href, active }) {
+   return (
+      <Link href={href} className={cn(
+         "text-[10px] font-black uppercase tracking-[0.3em] transition-all relative group",
+         active ? "text-emerald-400" : "text-white/40 hover:text-white"
+      )}>
+         {label}
+         <span className={cn(
+            "absolute -bottom-1 left-0 h-[2px] bg-emerald-400 transition-all duration-300",
+            active ? "w-full opacity-100 shadow-[0_0_10px_#10b981]" : "w-0 opacity-0 group-hover:w-full group-hover:opacity-50"
+         )} />
+      </Link>
+   );
 }
 
 function DropdownLink({ href, icon, label }) {

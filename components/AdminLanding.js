@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { 
@@ -10,7 +11,7 @@ import {
   Settings, Users, Lock, LogOut, ChevronRight,
   Database, Zap, Signal, Globe, Cpu, Terminal,
   Radar, Fingerprint, ShieldAlert, BarChart3,
-  Search, FileText, Share2, ArrowRight
+  Search, FileText, Share2, ArrowRight, Menu, X
 } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -22,9 +23,11 @@ if (typeof window !== "undefined") {
 
 export default function AdminLanding({ session }) {
   const router = useRouter();
+  const pathname = usePathname();
   const containerRef = useRef(null);
   const [activeUser, setActiveUser] = useState(session?.user || null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -62,15 +65,64 @@ export default function AdminLanding({ session }) {
       </div>
 
       {/* HEADER */}
-      <header className="relative z-[60] px-12 py-8 flex justify-between items-center max-w-[1700px] mx-auto border-b border-white/5 bg-black/20 backdrop-blur-md">
+      <header className="relative z-[60] px-6 md:px-12 py-6 md:py-8 flex justify-between items-center max-w-[1700px] mx-auto border-b border-white/5 bg-black/20 backdrop-blur-md">
         <div className="flex items-center gap-4 group cursor-pointer" onClick={() => router.push("/")}>
           <div className="w-10 h-10 bg-blue-500/10 border border-blue-500/40 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.2)]">
             <ShieldCheck className="w-6 h-6 text-blue-500" />
           </div>
-          <h1 className="font-black text-xl tracking-[0.3em] uppercase text-white/90">Command<span className="text-blue-500">Node</span></h1>
+           <h1 className="font-black text-lg md:text-xl tracking-[0.3em] uppercase text-white/90">Command<span className="text-blue-500">Node</span></h1>
         </div>
 
-        <nav className="hidden lg:flex items-center gap-12">
+        {/* Mobile Menu Button */}
+        <div className="lg:hidden flex items-center gap-4">
+           <button 
+             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+             className="w-12 h-12 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-blue-500 active:scale-90 transition-all"
+           >
+             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+           </button>
+        </div>
+
+        {/* Mobile Dropdown Menu */}
+        <AnimatePresence>
+           {isMobileMenuOpen && (
+              <motion.div 
+                 initial={{ opacity: 0, y: -20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 exit={{ opacity: 0, y: -20 }}
+                 className="absolute top-full left-0 right-0 m-4 p-6 bg-[#0a0f1e]/95 backdrop-blur-3xl border border-blue-500/30 rounded-[2.5rem] z-[100] lg:hidden space-y-6"
+              >
+                 <div className="space-y-4">
+                    <NavOption label="Admin Console" href="/admin" active={pathname === "/admin"} />
+                    <NavOption label="Tactical Map" href="/tracking" active={pathname === "/tracking"} />
+                    <NavOption label="Root Registry" href="/admin/profile" active={pathname === "/admin/profile"} />
+                 </div>
+                 <div className="h-px bg-white/10" />
+                 <div className="flex items-center gap-4">
+                    <Avatar className="w-12 h-12 border-2 border-blue-500/30">
+                       <AvatarImage src={activeUser?.image} />
+                       <AvatarFallback className="bg-[#111] text-blue-500">{activeUser?.name?.[0]}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                       <p className="text-xs font-black text-blue-500 uppercase">Global_Supervizor</p>
+                       <p className="text-sm font-bold text-white">{activeUser?.name || "Admin_Root"}</p>
+                    </div>
+                 </div>
+                 <button onClick={() => signOut({ callbackUrl: "/" })} className="w-full py-4 rounded-2xl bg-red-500/10 text-red-500 font-black text-xs uppercase tracking-widest border border-red-500/20">
+                    Terminate Session
+                 </button>
+              </motion.div>
+           )}
+        </AnimatePresence>
+
+        <nav className="hidden lg:flex items-center gap-10">
+          <div className="flex items-center gap-8 bg-black/40 border border-white/10 px-8 py-3 rounded-2xl backdrop-blur-md mr-4">
+             <NavOption label="Console" href="/admin" active={pathname === "/admin"} />
+             <div className="w-1.5 h-1.5 bg-blue-500/20 rounded-full" />
+             <NavOption label="Live Map" href="/tracking" active={pathname === "/tracking"} />
+             <div className="w-1.5 h-1.5 bg-blue-500/20 rounded-full" />
+             <NavOption label="Profile" href="/admin/profile" active={pathname === "/admin/profile"} />
+          </div>
 
           <div className="relative">
             <div 
@@ -117,29 +169,29 @@ export default function AdminLanding({ session }) {
       <section className="relative z-10 pt-32 pb-20 px-12 lg:px-24 max-w-[1700px] mx-auto overflow-hidden">
          <div className="hero-content grid lg:grid-cols-2 gap-24 items-center">
             <div className="space-y-12">
-               <div className="space-y-4">
-                  <p className="text-blue-500 font-black text-xs uppercase tracking-[0.8em]">Level_0_Access_Authorized</p>
-                  <h1 className="text-7xl lg:text-9xl font-black uppercase tracking-tighter leading-[0.85]">
-                     ADMIN <br/> COMMAND.
-                  </h1>
-               </div>
+                <div className="space-y-4">
+                   <p className="text-blue-500 font-black text-[10px] md:text-xs uppercase tracking-[0.8em]">Level_0_Access_Authorized</p>
+                   <h1 className="text-5xl md:text-7xl lg:text-9xl font-black uppercase tracking-tighter leading-[0.9]">
+                      ADMIN <br/> COMMAND.
+                   </h1>
+                </div>
                <p className="text-xl text-white/40 font-bold uppercase tracking-[0.1em] leading-relaxed max-w-xl">
                   Central intelligence for the SmartTransit ecosystem. Monitor fleet compliance, synchronize neural AI logs, and manage the tactical transport grid from a unified node.
                </p>
-               <div className="flex gap-6 pt-6">
-                  <Link 
-                     href="/admin"
-                     className="bg-blue-600 hover:bg-blue-500 text-white px-12 py-5 rounded-full font-black text-sm uppercase tracking-widest flex items-center gap-4 transition-all shadow-[0_0_40px_rgba(59,130,246,0.3)] group active:scale-[0.98]"
-                  >
-                     Enter Console <ArrowRight className="group-hover:translate-x-2 transition-transform" />
-                  </Link>
-                  <Link 
-                     href="/tracking"
-                     className="bg-white/5 hover:bg-white/10 border border-white/5 px-12 py-5 rounded-full font-black text-sm uppercase tracking-widest flex items-center gap-4 transition-all text-white/60 group"
-                  >
-                     Live Matrix <Globe className="group-hover:rotate-12 transition-transform opacity-40" />
-                  </Link>
-               </div>
+                <div className="flex flex-col sm:flex-row gap-4 md:gap-6 pt-6">
+                   <Link 
+                      href="/admin"
+                      className="bg-blue-600 hover:bg-blue-500 text-white px-10 md:px-12 py-4 md:py-5 rounded-full font-black text-xs md:text-sm uppercase tracking-widest flex items-center justify-center gap-4 transition-all shadow-[0_0_40px_rgba(59,130,246,0.3)] group active:scale-[0.98] w-full sm:w-auto"
+                   >
+                      Enter Console <ArrowRight className="group-hover:translate-x-2 transition-transform" />
+                   </Link>
+                   <Link 
+                      href="/tracking"
+                      className="bg-white/5 hover:bg-white/10 border border-white/10 px-10 md:px-12 py-4 md:py-5 rounded-full font-black text-xs md:text-sm uppercase tracking-widest flex items-center justify-center gap-4 transition-all text-white/60 group w-full sm:w-auto"
+                   >
+                      Live Matrix <Globe className="group-hover:rotate-12 transition-transform opacity-40" />
+                   </Link>
+                </div>
             </div>
 
             <div className="relative">
@@ -261,10 +313,14 @@ export default function AdminLanding({ session }) {
 function NavOption({ label, href, active }) {
    return (
       <Link href={href} className={cn(
-         "text-[11px] font-black uppercase tracking-widest transition-all",
-         active ? "text-blue-500 border-b-2 border-blue-500 pb-1" : "text-white/40 hover:text-white"
+         "text-[10px] font-black uppercase tracking-[0.2em] transition-all relative group",
+         active ? "text-blue-500" : "text-white/40 hover:text-white"
       )}>
          {label}
+         <span className={cn(
+            "absolute -bottom-1 left-0 h-[2px] bg-blue-500 transition-all duration-300",
+            active ? "w-full opacity-100 shadow-[0_0_10px_#3b82f6]" : "w-0 opacity-0 group-hover:w-full group-hover:opacity-50"
+         )} />
       </Link>
    );
 }

@@ -139,7 +139,7 @@ export default function DashboardClient({ session }) {
     <div className="min-h-screen w-full bg-[#dee2e6] text-slate-800 font-sans overflow-x-hidden relative">
       
       {/* Structural Headers (Top Nav) */}
-      <header className="max-w-[1500px] mx-auto px-10 h-24 flex justify-between items-center animate-[fadeIn_0.6s_ease-out] relative z-20">
+      <header className="max-w-[1500px] mx-auto px-6 md:px-10 h-20 md:h-24 flex justify-between items-center animate-[fadeIn_0.6s_ease-out] relative z-20">
          <Link href="/" className="flex items-center gap-4 group">
             <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center shadow-xl group-hover:rotate-12 transition-all">
               <Bot className="text-emerald-500" size={28} />
@@ -165,14 +165,16 @@ export default function DashboardClient({ session }) {
       </header>
 
       {/* Main Workspace Grid */}
-      <div className="max-w-[1500px] mx-auto px-10 pb-20 mt-2">
+      <div className="max-w-[1500px] mx-auto px-5 md:px-10 pb-20 mt-2">
          
          {!isActiveTrip && profile?.role === "student" ? (
             <div className="h-[60vh] flex flex-col items-center justify-center text-center animate-[slideUp_0.6s_ease-out]">
-               <div className="w-24 h-24 bg-[#cbd5e0] border-4 border-slate-400 rounded-full flex items-center justify-center mb-8 shadow-inner">
-                  <MapPinned className="text-slate-500" size={48} />
+               <div className="h-[350px] md:h-[460px] rounded-2xl border border-slate-800 bg-slate-900/50 p-4 flex items-center justify-center text-sm font-semibold text-slate-400">
+                  <div className="animate-pulse flex flex-col items-center gap-3">
+                     <div className="w-8 h-8 rounded-full border-2 border-t-emerald-500 animate-spin" />
+                     Initializing Secure Live Mapping...
+                  </div>
                </div>
-               <h2 className="text-4xl font-black text-slate-900 tracking-tighter mb-4">Tracking Link Severed</h2>
                <p className="text-slate-500 font-bold mb-10 max-w-sm mx-auto leading-relaxed text-sm uppercase tracking-widest">Awaiting active transit synchronization...</p>
                <Link href="/route" className="bg-slate-900 text-emerald-500 px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-2xl active:scale-95 transition-all">
                   Synchronize Path
@@ -201,7 +203,7 @@ export default function DashboardClient({ session }) {
                            </div>
                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Assigned Unit</p>
                            <h3 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-2 uppercase">{assignedBusWithEta?.busId || "DISCOVERING..."}</h3>
-                           <p className="text-slate-600 font-bold text-xs uppercase tracking-widest">{myRoute?.name || "Initializing Link"}</p>
+                           <p className="text-slate-600 font-bold text-xs uppercase tracking-widest truncate">{myRoute?.name || "Initializing Link"}</p>
                         </div>
 
                         {/* Core Metrics */}
@@ -259,8 +261,8 @@ export default function DashboardClient({ session }) {
                   </div>
                </aside>
 
-               <main className="lg:col-span-8 space-y-8 animate-[slideLeft_0.6s_ease-out]">
-                  <div className="bg-[#0b1220] border-8 border-slate-400 rounded-[3rem] h-[550px] min-h-[500px] relative overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)]">
+               <main className="lg:col-span-8 space-y-8 animate-[slideLeft_0.6s_ease-out] order-first lg:order-last">
+                  <div className="h-[350px] md:h-[460px] relative overflow-hidden rounded-2xl border border-slate-800 shadow-2xl">
                      
                      {/* Map Intergration */}
                      <div className="w-full h-full brightness-[0.8] contrast-[1.2] grayscale-[0.2]">
@@ -268,7 +270,7 @@ export default function DashboardClient({ session }) {
                      </div>
 
                      {/* Glass Overlay Cards */}
-                     <div className="absolute top-10 left-10 z-30 flex flex-col gap-5 max-w-[300px]">
+                     <div className="absolute top-4 left-4 md:top-10 md:left-10 z-30 flex flex-col gap-3 md:gap-5 max-w-[200px] md:max-w-[300px]">
                         <GlassBox>
                            <div className="flex items-center gap-3">
                               <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]"></div>
@@ -280,12 +282,12 @@ export default function DashboardClient({ session }) {
                            <div className="space-y-4">
                               <div>
                                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Target Hub</p>
-                                 <p className="text-lg font-black text-white leading-none underline decoration-emerald-500 decoration-4 underline-offset-4">{assignedBus?.nextStop || "Syncing..."}</p>
+                                 <p className="text-lg font-black text-white leading-none underline decoration-emerald-500 decoration-4 underline-offset-4 truncate">{assignedBus?.nextStop || "Syncing..."}</p>
                               </div>
                               <div className="pt-4 border-t border-white/10 flex justify-between items-end">
                                  <div>
-                                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Delta Time</p>
-                                    <p className="text-xl font-black text-emerald-400 leading-none">
+                                    <p className="text-[7px] md:text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Delta Time</p>
+                                    <p className="text-sm md:text-xl font-black text-emerald-400 leading-none">
                                       {assignedBusWithEta?.etaToBoardingStop ? `${assignedBusWithEta.etaToBoardingStop} MIN` : "CALC..."}
                                     </p>
                                  </div>
@@ -295,20 +297,20 @@ export default function DashboardClient({ session }) {
                         </GlassBox>
                      </div>
 
-                     {/* Bottom Badge */}
-                     <div className="absolute bottom-10 right-10 z-30">
-                        <GlassBox>
-                           <div className="flex items-center gap-4">
-                              <div className="text-right">
-                                 <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Global Sync</p>
-                                 <p className="text-sm font-black text-slate-100 uppercase">{updatedAt ? new Date(updatedAt).toLocaleTimeString() : "--"}</p>
-                              </div>
-                              <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
-                                 <Zap className="text-slate-900" size={20} />
-                              </div>
-                           </div>
-                        </GlassBox>
-                     </div>
+                      {/* Bottom Badge */}
+                      <div className="absolute bottom-4 right-4 md:bottom-10 md:right-10 z-30">
+                         <GlassBox className="p-3 md:p-6">
+                            <div className="flex items-center gap-2 md:gap-4">
+                               <div className="text-right hidden sm:block">
+                                  <p className="text-[7px] md:text-[9px] font-black text-slate-500 uppercase tracking-widest">Global Sync</p>
+                                  <p className="text-xs md:text-sm font-black text-slate-100 uppercase">{updatedAt ? new Date(updatedAt).toLocaleTimeString() : "--"}</p>
+                               </div>
+                               <div className="w-8 h-8 md:w-10 md:h-10 bg-emerald-500 rounded-lg md:rounded-xl flex items-center justify-center shadow-lg">
+                                  <Zap className="text-slate-900" size={16} />
+                               </div>
+                            </div>
+                         </GlassBox>
+                      </div>
 
                      <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#020617]/80 to-transparent pointer-events-none z-20"></div>
                   </div>
@@ -378,9 +380,9 @@ function MetricItem({ label, value, icon, highlight }) {
    );
 }
 
-function GlassBox({ children }) {
+function GlassBox({ children, className }) {
    return (
-      <div className="bg-[#0b1220]/70 backdrop-blur-2xl border border-white/10 p-6 rounded-[2rem] shadow-2xl ring-1 ring-white/10">
+      <div className={cn("bg-[#0b1220]/70 backdrop-blur-2xl border border-white/10 p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-2xl ring-1 ring-white/10", className)}>
          {children}
       </div>
    );

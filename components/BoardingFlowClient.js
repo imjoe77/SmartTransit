@@ -215,7 +215,7 @@ export default function BoardingFlowClient({ session }) {
   };
 
   return (
-    <div className="h-screen w-screen bg-[#dee2e6] flex overflow-hidden font-sans text-slate-800">
+    <div className="h-screen w-screen bg-[#dee2e6] flex overflow-hidden font-sans text-slate-800 pb-20 lg:pb-0">
 
       {/* === DARK SIDEBAR === */}
       <div className="w-72 hidden lg:flex flex-col bg-[#1a1c23] border-r border-[#2d2f39] shrink-0 text-slate-300 shadow-2xl z-20">
@@ -264,25 +264,25 @@ export default function BoardingFlowClient({ session }) {
       <div className="flex-1 flex flex-col overflow-hidden bg-[#dee2e6]">
         
         {/* Console Header */}
-        <div className="h-20 flex justify-between items-center px-10 border-b border-[#cbd5e0] shrink-0 bg-[#dee2e6]/50 backdrop-blur-md z-10">
+        <div className="h-20 flex justify-between items-center px-6 md:px-10 border-b border-[#cbd5e0] shrink-0 bg-[#dee2e6]/50 backdrop-blur-md z-10 transition-all">
           <div>
-            <h1 className="text-xl font-black text-slate-900 tracking-tighter">Digital Boarding</h1>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-0.5">Authentication Unit — {timeStr}</p>
+            <h1 className="text-lg md:text-xl font-black text-slate-900 tracking-tighter">Digital Boarding</h1>
+            <p className="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-0.5">Authentication Unit — {timeStr}</p>
           </div>
-          <div className="flex items-center gap-3 bg-[#cbd5e0] px-4 py-2 rounded-full border border-slate-400/30 text-[9px] font-black text-slate-600 uppercase tracking-widest">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span> Sec_Link Active
+          <div className="flex items-center gap-2 md:gap-3 bg-[#cbd5e0] px-3 md:px-4 py-1.5 md:py-2 rounded-full border border-slate-400/30 text-[8px] md:text-[9px] font-black text-slate-600 uppercase tracking-widest transition-all">
+            <span className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span> Sec_Link Active
           </div>
         </div>
 
         {/* Console Workspace */}
-        <div className="flex-1 overflow-y-auto p-10 space-y-10 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-5 md:p-10 space-y-8 md:space-y-10 custom-scrollbar">
           
           <div className="max-w-4xl mx-auto space-y-8 pb-10">
             
             {/* Status Card */}
-            <div className="bg-[#cbd5e0] border-2 border-slate-400 rounded-3xl p-8 shadow-inner flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group transition-all">
-                <div className="w-16 h-16 bg-[#dee2e6] border border-slate-400 rounded-2xl flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform">
-                   <BusFront className="text-slate-600" size={32} />
+            <div className="bg-[#cbd5e0] border-2 border-slate-400 rounded-3xl p-6 md:p-8 shadow-inner flex flex-row items-center gap-5 md:gap-8 relative overflow-hidden group transition-all">
+                <div className="w-12 h-12 md:w-16 md:h-16 bg-[#dee2e6] border border-slate-400 rounded-xl md:rounded-2xl flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform">
+                   <BusFront className="text-slate-600" size={24} />
                 </div>
                 {isLoading ? (
                   <div className="flex-1 flex items-center gap-4 text-slate-500 font-bold uppercase tracking-widest text-xs">
@@ -295,10 +295,10 @@ export default function BoardingFlowClient({ session }) {
                   </div>
                 ) : (
                   <div className="flex-1">
-                     <p className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.3em] mb-1">Assigned Vehicle</p>
-                     <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-1">Node {assignedBus.busId}</h2>
-                     <p className="text-slate-600 font-bold text-[11px] uppercase tracking-widest flex items-center gap-2">
-                       <MapPin size={14} className="text-slate-400" /> Route {profile?.studentProfile?.preferredRouteId?.routeNumber} Synced
+                     <p className="text-[8px] md:text-[10px] font-black text-emerald-600 uppercase tracking-[0.3em] mb-1">Assigned Vehicle</p>
+                     <h2 className="text-xl md:text-3xl font-black text-slate-900 tracking-tighter mb-1">Node {assignedBus.busId}</h2>
+                     <p className="text-slate-600 font-bold text-[9px] md:text-[11px] uppercase tracking-widest flex items-center gap-2">
+                       <MapPin size={12} className="text-slate-400" /> Route {profile?.studentProfile?.preferredRouteId?.routeNumber} Synced
                      </p>
                   </div>
                 )}
@@ -307,7 +307,7 @@ export default function BoardingFlowClient({ session }) {
             </div>
 
             {/* Core Interaction Unit - THE BORDERED CONTAINER */}
-            <div className="bg-[#dee2e6] border-4 border-slate-400/80 rounded-[2.5rem] p-10 shadow-2xl relative">
+            <div className="bg-[#dee2e6] border-2 md:border-4 border-slate-400/80 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 shadow-2xl relative">
                
                {/* Interior shading for depth */}
                <div className="absolute inset-0 bg-[#cbd5e0]/20 pointer-events-none rounded-[2.2rem]"></div>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, ChevronRight, LogIn, Globe, Shield, User, GraduationCap, BusFront } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -122,6 +123,7 @@ function PageTransition() {
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const leaveTimer = useRef(null);
 
   useEffect(() => {
@@ -157,9 +159,22 @@ function Navbar() {
           </span>
         </Link>
 
+        <nav className="hidden lg:flex items-center gap-10">
+          <NavLink label="Platform" href="#platform" scrolled={scrolled} />
+          <NavLink label="Features" href="#features" scrolled={scrolled} />
+          <NavLink label="Live Demo" href="#demo" scrolled={scrolled} />
+          <NavLink label="Contact" href="#contact" scrolled={scrolled} />
+        </nav>
 
         {/* Actions */}
         <div className="flex items-center gap-4">
+           {/* Mobile Menu Toggle */}
+           <button 
+             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+             className={`lg:hidden p-2 rounded-xl transition-all ${scrolled ? "text-slate-900 bg-slate-100" : "text-white bg-white/10"}`}
+           >
+             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+           </button>
           <div className="relative" onMouseEnter={openLogin} onMouseLeave={closeLogin} onClick={() => setLoginOpen(!loginOpen)}>
             <button className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all border ${
               scrolled 
@@ -190,12 +205,61 @@ function Navbar() {
             </AnimatePresence>
           </div>
 
-          <Link href="/login?role=student" className="px-6 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-black hover:bg-emerald-500 shadow-xl shadow-emerald-500/20 active:scale-95 transition-all">
+          <Link href="/login?role=student" className="hidden sm:block px-6 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-black hover:bg-emerald-500 shadow-xl shadow-emerald-500/20 active:scale-95 transition-all">
             Get Started
           </Link>
         </div>
       </div>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+         {mobileMenuOpen && (
+            <motion.div 
+               initial={{ opacity: 0, height: 0 }}
+               animate={{ opacity: 1, height: "auto" }}
+               exit={{ opacity: 0, height: 0 }}
+               className="lg:hidden bg-white border-b border-slate-200 overflow-hidden"
+            >
+               <div className="px-6 py-8 space-y-6">
+                  <div className="flex flex-col gap-4">
+                     <MobileNavLink label="Platform" href="#platform" onClick={() => setMobileMenuOpen(false)} />
+                     <MobileNavLink label="Features" href="#features" onClick={() => setMobileMenuOpen(false)} />
+                     <MobileNavLink label="Live Demo" href="#demo" onClick={() => setMobileMenuOpen(false)} />
+                     <MobileNavLink label="Contact" href="#contact" onClick={() => setMobileMenuOpen(false)} />
+                  </div>
+                  <div className="h-px bg-slate-100" />
+                  <div className="grid grid-cols-1 gap-3">
+                     <Link href="/login?role=student" className="w-full py-4 bg-emerald-600 text-white text-center rounded-xl font-black text-xs uppercase tracking-widest">Student Portal</Link>
+                     <Link href="/login?role=driver" className="w-full py-4 bg-slate-100 text-slate-900 text-center rounded-xl font-black text-xs uppercase tracking-widest border border-slate-200">Driver Console</Link>
+                  </div>
+               </div>
+            </motion.div>
+         )}
+      </AnimatePresence>
     </nav>
+  );
+}
+
+function MobileNavLink({ label, href, onClick }) {
+   return (
+      <Link href={href} onClick={onClick} className="text-sm font-black uppercase tracking-[0.2em] text-slate-500 hover:text-emerald-600 flex justify-between items-center group">
+         {label}
+         <ChevronRight size={16} className="opacity-0 group-hover:opacity-100 transition-all" />
+      </Link>
+   );
+}
+
+function NavLink({ label, href, scrolled }) {
+  return (
+    <Link 
+      href={href} 
+      className={`text-[10px] font-black uppercase tracking-[0.3em] transition-all relative group ${
+        scrolled ? "text-slate-500 hover:text-emerald-600" : "text-white/60 hover:text-white"
+      }`}
+    >
+      {label}
+      <span className={`absolute -bottom-1 left-0 h-[2px] bg-emerald-500 transition-all duration-300 w-0 opacity-0 group-hover:w-full group-hover:opacity-100`} />
+    </Link>
   );
 }
 
@@ -254,7 +318,7 @@ function Hero() {
           <span className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-300">Intelligent Fleet Logistics</span>
         </motion.div>
 
-        <h1 className="text-6xl md:text-8xl lg:text-[7.5rem] font-black tracking-tighter leading-[0.85] mb-8">
+        <h1 className="text-4xl md:text-6xl lg:text-[7.5rem] font-black tracking-tighter leading-[1] md:leading-[0.85] mb-8">
           TRANSIT<br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-200">
             UNLEASHED.

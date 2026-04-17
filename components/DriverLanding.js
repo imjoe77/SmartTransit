@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { 
@@ -11,7 +12,7 @@ import {
   LogOut, User, LayoutDashboard, Database, Activity,
   ChevronRight, Eye, Radar, Wifi, Radio, Lock, ShieldAlert,
   MapPinned, Globe, Network, Server, Share2, Award, Target,
-  Settings, Key, Clock
+  Settings, Key, Clock, Menu, X
 } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -23,9 +24,11 @@ if (typeof window !== "undefined") {
 
 export default function DriverLanding({ session }) {
   const router = useRouter();
+  const pathname = usePathname();
   const containerRef = useRef(null);
   const [activeUser, setActiveUser] = useState(session?.user || null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const curtainsRef = useRef([]);
   const textRefs = useRef([]);
@@ -235,15 +238,64 @@ export default function DriverLanding({ session }) {
       </div>
 
       {/* HEADER */}
-      <header className="relative z-[60] px-12 py-8 flex justify-between items-center max-w-[1700px] mx-auto">
+      <header className="relative z-[60] px-6 md:px-12 py-6 md:py-8 flex justify-between items-center max-w-[1700px] mx-auto">
         <div className="flex items-center gap-4 group cursor-pointer" onClick={() => router.push("/")}>
           <div className="w-10 h-10 bg-[#39FF14]/10 border border-[#39FF14]/40 rounded-lg flex items-center justify-center group-hover:shadow-[0_0_15px_rgba(57,255,20,0.4)] transition-all">
             <Terminal className="w-6 h-6 text-[#39FF14]" />
           </div>
-          <h1 className="font-black text-xl tracking-[0.3em] uppercase text-white/90">Command<span className="text-[#39FF14]">Link</span></h1>
+           <h1 className="font-black text-lg md:text-xl tracking-[0.3em] uppercase text-white/90">Command<span className="text-[#39FF14]">Link</span></h1>
         </div>
 
-        <nav className="hidden lg:flex items-center gap-12">
+        {/* Mobile Menu Button */}
+        <div className="lg:hidden flex items-center gap-4">
+           <button 
+             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+             className="w-12 h-12 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-[#39FF14] active:scale-90 transition-all"
+           >
+             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+           </button>
+        </div>
+
+        {/* Mobile Dropdown Menu */}
+        <AnimatePresence>
+           {isMobileMenuOpen && (
+              <motion.div 
+                 initial={{ opacity: 0, y: -20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 exit={{ opacity: 0, y: -20 }}
+                 className="absolute top-full left-0 right-0 m-4 p-6 bg-[#080808]/90 backdrop-blur-3xl border border-[#39FF14]/30 rounded-[2.5rem] z-[100] lg:hidden space-y-6"
+              >
+                 <div className="space-y-4">
+                    <NavOption label="Terminal Console" href="/driver" active={pathname === "/driver"} />
+                    <NavOption label="Operational History" href="/dhistory" active={pathname === "/dhistory"} />
+                    <NavOption label="System Registry" href="/driver/profile" active={pathname === "/driver/profile"} />
+                 </div>
+                 <div className="h-px bg-white/10" />
+                 <div className="flex items-center gap-4">
+                    <Avatar className="w-12 h-12 border-2 border-[#39FF14]/30">
+                       <AvatarImage src={activeUser?.image} />
+                       <AvatarFallback className="bg-[#111] text-[#39FF14]">{activeUser?.name?.[0]}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                       <p className="text-xs font-black text-[#39FF14] uppercase">Level_03_Operator</p>
+                       <p className="text-sm font-bold text-white">{activeUser?.name || "Driver_01"}</p>
+                    </div>
+                 </div>
+                 <button onClick={() => signOut({ callbackUrl: "/" })} className="w-full py-4 rounded-2xl bg-red-500/10 text-red-500 font-black text-xs uppercase tracking-widest border border-red-500/20">
+                    Sign Out Mission
+                 </button>
+              </motion.div>
+           )}
+        </AnimatePresence>
+
+        <nav className="hidden lg:flex items-center gap-10">
+          <div className="flex items-center gap-8 bg-white/5 border border-white/10 px-8 py-3 rounded-2xl backdrop-blur-md mr-4">
+             <NavOption label="Terminal" href="/driver" active={pathname === "/driver"} />
+             <div className="w-1.5 h-1.5 bg-[#39FF14]/20 rounded-full" />
+             <NavOption label="History" href="/dhistory" active={pathname === "/dhistory"} />
+             <div className="w-1.5 h-1.5 bg-[#39FF14]/20 rounded-full" />
+             <NavOption label="Profile" href="/driver/profile" active={pathname === "/driver/profile"} />
+          </div>
 
           <div className="relative">
             <div 
@@ -291,38 +343,38 @@ export default function DriverLanding({ session }) {
       </header>
 
       {/* 🚀 HERO SECTION */}
-      <section className="relative z-10 flex flex-col items-start justify-center min-h-[90vh] px-12 lg:px-24 max-w-[1700px] mx-auto">
+      <section className="relative z-10 flex flex-col items-start justify-center min-h-[90vh] px-6 md:px-12 lg:px-24 max-w-[1700px] mx-auto py-20 lg:py-0">
          <div className="max-w-6xl space-y-12">
             <div className="space-y-4">
                <div className="overflow-hidden">
-                  <h1 ref={addToTextRefs} className="text-8xl lg:text-[10rem] font-black leading-[0.8] tracking-tighter uppercase text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.15)]">
+                  <h1 ref={addToTextRefs} className="text-5xl md:text-8xl lg:text-[10rem] font-black leading-[0.85] tracking-tighter uppercase text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.15)]">
                      COMMAND
                   </h1>
                </div>
                <div className="overflow-hidden">
-                  <h1 ref={addToTextRefs} className="text-8xl lg:text-[10rem] font-black leading-[0.8] tracking-tighter text-[#39FF14] uppercase drop-shadow-[0_0_40px_rgba(57,255,20,0.4)]">
+                  <h1 ref={addToTextRefs} className="text-5xl md:text-8xl lg:text-[10rem] font-black leading-[0.85] tracking-tighter text-[#39FF14] uppercase drop-shadow-[0_0_40px_rgba(57,255,20,0.4)]">
                      EVERY ROUTE.
                   </h1>
                </div>
             </div>
 
             <div className="overflow-hidden max-w-2xl">
-               <p ref={addToTextRefs} className="text-xl lg:text-2xl text-white/60 font-medium leading-[1.6] uppercase tracking-wide">
+               <p ref={addToTextRefs} className="text-base md:text-xl lg:text-2xl text-white/60 font-medium leading-[1.6] uppercase tracking-wide">
                   Real-time telemetry, precision vectoring, and neural fatigue monitoring. CommandLink puts your entire shift on autopilot with elite technical assistance.
                </p>
             </div>
 
-            <div className="flex flex-wrap gap-6 pt-6 overflow-hidden">
-               <div ref={addToTextRefs} className="flex flex-wrap gap-6">
+            <div className="flex flex-col sm:flex-row gap-4 md:gap-6 pt-6 overflow-hidden">
+               <div ref={addToTextRefs} className="flex flex-col sm:flex-row gap-4 md:gap-6 w-full sm:w-auto">
                   <button 
                      onClick={handleTerminalEntry}
-                     className="bg-[#39FF14] hover:bg-[#32e612] text-black px-14 py-6 rounded-full font-black text-lg uppercase tracking-widest flex items-center gap-4 transition-all shadow-[0_0_40px_rgba(57,255,20,0.5)] group active:scale-[0.98]"
+                     className="bg-[#39FF14] hover:bg-[#32e612] text-black px-8 md:px-14 py-4 md:py-6 rounded-full font-black text-sm md:text-lg uppercase tracking-widest flex items-center justify-center gap-4 transition-all shadow-[0_0_40px_rgba(57,255,20,0.5)] group active:scale-[0.98] w-full sm:w-auto"
                   >
-                     Log_In to Terminal <ArrowRight className="group-hover:translate-x-2 transition-transform" />
+                     Log_In Terminal <ArrowRight className="group-hover:translate-x-2 transition-transform" />
                   </button>
                   <Link 
                      href="/driver/profile"
-                     className="bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/20 px-14 py-6 rounded-full font-black text-lg uppercase tracking-widest flex items-center gap-4 transition-all text-white group"
+                     className="bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/20 px-8 md:px-14 py-4 md:py-6 rounded-full font-black text-sm md:text-lg uppercase tracking-widest flex items-center justify-center gap-4 transition-all text-white group w-full sm:w-auto"
                   >
                      Config_System <User className="group-hover:rotate-12 transition-transform" />
                   </Link>
@@ -497,10 +549,14 @@ export default function DriverLanding({ session }) {
 function NavOption({ label, href, active }) {
    return (
       <Link href={href} className={cn(
-         "text-xs font-black uppercase tracking-widest transition-all",
-         active ? "text-[#39FF14] animate-pulse" : "text-white/40 hover:text-white"
+         "text-[10px] font-black uppercase tracking-[0.2em] transition-all relative group",
+         active ? "text-[#39FF14]" : "text-white/40 hover:text-white"
       )}>
          {label}
+         <span className={cn(
+            "absolute -bottom-1 left-0 h-[2px] bg-[#39FF14] transition-all duration-300",
+            active ? "w-full opacity-100 shadow-[0_0_10px_#39FF14]" : "w-0 opacity-0 group-hover:w-full group-hover:opacity-50"
+         )} />
       </Link>
    );
 }
