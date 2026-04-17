@@ -10,10 +10,8 @@ export default async function AdminHomePage() {
   }
 
   if (session.user?.role !== "admin") {
-    // If a driver or student somehow ends up here
-    if (session.user?.role === "driver") redirect("/driverhome");
-    if (session.user?.role === "student") redirect("/studenthome");
-    redirect("/");
+    // If a driver or student somehow ends up here, send them back to login with an error
+    redirect("/login?role=admin&error=UnauthorizedAdmin");
   }
 
   return <AdminLanding session={session} />;
