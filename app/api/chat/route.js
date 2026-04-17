@@ -49,18 +49,18 @@ export async function POST(request) {
   }
 
   const lowerMsg = message.toLowerCase();
-  const isScheduleQuery = ["route", "stop", "time", "when", "depart", "arrive", "schedule", "which bus", "bus", "delay", "late", "early", "morning", "evening", "loop", "hubli", "dharwad", "campus", "college", "trip", "eta", "track", "where"].some(key => lowerMsg.includes(key));
+  const isScheduleQuery = ["time", "when", "depart", "arrive", "schedule", "delay", "late", "early", "morning", "evening", "loop", "hubli", "dharwad", "campus", "trip", "eta"].some(key => lowerMsg.includes(key));
 
-  // Always try RAG first for any transit-related query
+  // Try RAG for specific schedule/historical performance queries
   if (isScheduleQuery) {
     try {
       const reply = await answerScheduleQuery(message);
-      if (reply && !reply.includes("haven't been set up")) {
+      // Only return early if RAG actually found something useful and didn't give a refusal
+      if (reply && !reply.includes("haven't been set up") && !reply.includes("don't have that information")) {
         return NextResponse.json({ reply, source: "rag" });
       }
     } catch (error) {
       console.error("RAG Error:", error);
-      // Fall through to snapshot chat if RAG fails
     }
   }
 
