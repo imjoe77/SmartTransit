@@ -89,7 +89,10 @@ export async function initKnowledge() {
      const baseText = `Route ${routeName} (ID: ${route.routeId || ""}) has ${stopCount} stops: ${stopsStr}. Morning departure ${morningDep}, evening departure ${eveningDep}. Assigned buses: ${assignedBuses}.`;
      
      // ─── Incorporate historical performance from triplogs ───
-     const routeLogs = triplogs.filter((log: any) => String(log.routeId) === String(route._id));
+     const routeLogs = triplogs.filter((log: any) => 
+        (log.routeId && route.routeId && String(log.routeId).toLowerCase() === String(route.routeId).toLowerCase()) || 
+        String(log.routeId) === String(route._id)
+     );
      let performanceText = " No historical performance data available yet.";
      
      if (routeLogs.length > 0) {
