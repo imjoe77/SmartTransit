@@ -43,8 +43,7 @@ function getSocketServiceUrl() {
 
 export async function emitSocketEvent(event: string, payload: unknown) {
   const serviceUrl = trimTrailingSlash(getSocketServiceUrl());
-  if (!serviceUrl || isLikelyLocalUrl(serviceUrl)) {
-    // Local development can run without external socket relay.
+  if (!serviceUrl) {
     return false;
   }
 
