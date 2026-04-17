@@ -1,9 +1,12 @@
 "use client";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 
 export default function DriverLogin() {
   const [slide, setSlide] = useState(0);
+  const searchParams = useSearchParams();
+  const error = searchParams.get("error");
 
   return (
     <div className="h-[100dvh] w-full relative overflow-hidden isolate bg-slate-900 text-white">
@@ -53,7 +56,19 @@ export default function DriverLogin() {
       <div className="absolute top-0 right-0 h-full w-full lg:w-[500px] overflow-hidden bg-black/40 backdrop-blur-xl border-l border-white/10 shadow-[-10px_0_40px_rgba(0,0,0,0.5)] z-20 animate-[slideInRight_1s_ease_forwards]">
 
         {/* VIEWPORT CLIP */}
-        <div className="w-full h-full overflow-hidden">
+        <div className="w-full h-full overflow-hidden flex flex-col">
+
+          {/* ERROR ALERT */}
+          {error && (
+            <div className="mx-8 mt-12 p-4 rounded-xl bg-orange-500/10 border border-orange-500/50 backdrop-blur-md animate-pulse">
+              <p className="text-orange-400 text-sm font-bold text-center uppercase tracking-widest">
+                🚫 Driver Not Authorized
+              </p>
+              <p className="text-orange-500/80 text-[10px] text-center mt-1 uppercase">
+                Email verification failed
+              </p>
+            </div>
+          )}
 
           {/* SLIDER */}
           <div
