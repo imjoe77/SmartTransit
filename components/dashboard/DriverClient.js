@@ -201,6 +201,34 @@ export default function DriverClient() {
     showBrowserNotification("Trip ended", `GPS stopped for ${selectedBusId}`);
   };
 
+  const handlePanic = async () => {
+    if (!selectedBusId || !coords) {
+      setStatus("Cannot send SOS: No active location signal.");
+      return;
+    }
+    if (!confirm("🚨 SOS EMERGENCY: Alert Admin and Emergency Services?")) return;
+    try {
+      const res = await fetch("/api/safety/panic", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          busId: selectedBusId,
+          driverId: driver?.email || selectedBus?.driverEmail || "driver",
+          routeId: selectedBus?.routeId,
+          coordinates: coords,
+          triggeredBy: "driver",
+        }),
+      });
+      if (res.ok) {
+        setStatus("SOS_SIGNAL_BROADCAST_SUCCESS");
+      } else {
+        setStatus("SOS_FAILED: SERVER_REJECTED");
+      }
+    } catch (err) {
+      setStatus("SOS_FAILED: NETWORK_ERROR");
+    }
+  };
+
 
   useEffect(() => {
     let mounted = true;
@@ -354,6 +382,12 @@ export default function DriverClient() {
                 <Power size={18} /> End_Trip
               </button>
             )}
+            <button 
+              onClick={handlePanic}
+              className="bg-red-600 hover:bg-red-500 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-[0_0_20px_rgba(220,38,38,0.4)] hover:scale-105 active:scale-95 flex items-center gap-3 transition-all"
+            >
+              <ShieldAlert size={18} /> SOS_EMERGENCY
+            </button>
          </div>
       </div>
 
