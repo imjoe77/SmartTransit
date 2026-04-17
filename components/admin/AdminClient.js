@@ -23,6 +23,7 @@ export default function AdminClient() {
   const [safetyAlerts, setSafetyAlerts] = useState([]);
   const [drivers, setDrivers] = useState([]);
   const [boardingEvents, setBoardingEvents] = useState({});
+  const [activeProminentAlert, setActiveProminentAlert] = useState(null);
 
   const load = useCallback(async () => {
     try {
@@ -80,7 +81,9 @@ export default function AdminClient() {
     const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4001");
     
     socket.on("safety:panic", (data) => {
-      setSafetyAlerts(prev => [{ ...data, type: "panic", id: Date.now() }, ...prev]);
+      const alert = { ...data, type: "panic", id: Date.now() };
+      setSafetyAlerts(prev => [alert, ...prev]);
+      setActiveProminentAlert(alert);
       new Audio("/alert.mp3").play().catch(() => {});
     });
 
@@ -93,7 +96,9 @@ export default function AdminClient() {
     });
 
     socket.on("safety:fatigue", (data) => {
-      setSafetyAlerts(prev => [{ ...data, type: "fatigue", id: Date.now() }, ...prev]);
+      const alert = { ...data, type: "fatigue", id: Date.now() };
+      setSafetyAlerts(prev => [alert, ...prev]);
+      setActiveProminentAlert(alert);
       new Audio("/alert.mp3").play().catch(() => {});
     });
 
@@ -209,6 +214,51 @@ export default function AdminClient() {
 
   return (
     <div className="space-y-10 pb-20 font-mono">
+      {/* PROMINENT EMERGENCY OVERLAY */}
+      {activeProminentAlert && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-2xl p-6 animate-in fade-in duration-300">
+           <div className={cn(
+             "w-full max-w-2xl p-10 rounded-[3rem] border-4 shadow-[0_0_100px_rgba(255,0,0,0.4)] flex flex-col items-center text-center space-y-8 animate-in zoom-in-95 duration-500",
+             activeProminentAlert.type === 'panic' ? 'bg-red-950/80 border-red-500 shadow-red-500/30' : 'bg-purple-950/80 border-purple-500 shadow-purple-500/30'
+           )}>
+             <div className={cn(
+               "w-32 h-32 rounded-[2rem] flex items-center justify-center text-6xl shadow-2xl animate-[emergency_1s_infinite_alternate]",
+               activeProminentAlert.type === 'panic' ? 'bg-red-600' : 'bg-purple-600'
+             )}>
+                {activeProminentAlert.type === 'panic' ? '🚨' : '😴'}
+             </div>
+             
+             <div className="space-y-4">
+                <h2 className="text-5xl font-black text-white uppercase tracking-tighter leading-tight">
+                   {activeProminentAlert.type === 'panic' ? 'CRITICAL_SOS_SIGNAL' : 'DRIVER_FATIGUE_ALARM'}
+                </h2>
+                <div className="flex flex-wrap justify-center gap-4 text-[12px] font-black text-white/60 tracking-[0.2em] uppercase">
+                   <div className="bg-white/10 px-4 py-2 rounded-full border border-white/10">Unit: {activeProminentAlert.busId}</div>
+                   {activeProminentAlert.ear && <div className="bg-white/10 px-4 py-2 rounded-full border border-white/10">EAR_IDX: {activeProminentAlert.ear.toFixed(2)}</div>}
+                   {activeProminentAlert.timestamp && <div className="bg-white/10 px-4 py-2 rounded-full border border-white/10">TS: {new Date(activeProminentAlert.timestamp).toLocaleTimeString()}</div>}
+                </div>
+             </div>
+
+             <div className="w-full grid gap-4">
+                {activeProminentAlert.googleMapsLink && (
+                  <a 
+                    href={activeProminentAlert.googleMapsLink} 
+                    target="_blank" 
+                    className="w-full py-6 bg-white text-black rounded-3xl font-black uppercase text-sm tracking-widest hover:scale-[1.02] active:scale-95 transition-all text-center"
+                  >
+                    📍 Intercept_Coordinates_On_Map
+                  </a>
+                )}
+                <button 
+                  onClick={() => setActiveProminentAlert(null)}
+                  className="w-full py-6 bg-white/10 hover:bg-white/20 text-white rounded-3xl font-black uppercase text-sm tracking-widest border border-white/20 transition-all"
+                >
+                  Acknowledge_And_Minimize
+                </button>
+             </div>
+           </div>
+        </div>
+      )}
       {/* TACTICAL ALERTS - High Priority Interruptions */}
       <div className="space-y-4">
         {safetyAlerts.map((alert) => (
@@ -587,6 +637,12 @@ export default function AdminClient() {
           </div>
         </div>
       )}
+        <style jsx global>{`
+          @keyframes emergency {
+            from { transform: scale(1); box-shadow: 0 0 0px rgba(255,0,0,0); }
+            to { transform: scale(1.1); box-shadow: 0 0 50px rgba(255,0,0,0.5); }
+          }
+        `}</style>
       </div>
     </div>
   );
