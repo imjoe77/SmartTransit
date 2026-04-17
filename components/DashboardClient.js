@@ -112,7 +112,14 @@ export default function DashboardClient({ session }) {
       await fetch("/api/safety/panic", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ busId: assignedBusWithEta.busId, triggeredBy: "student", userEmail: profile?.email }),
+        body: JSON.stringify({ 
+          busId: assignedBusWithEta.busId, 
+          driverId: assignedBusWithEta.driverEmail || "unassigned",
+          routeId: assignedBusWithEta.routeId,
+          coordinates: studentLocation || assignedBusWithEta.coordinates || { lat: 0, lng: 0 },
+          triggeredBy: "student", 
+          userEmail: profile?.email 
+        }),
       });
       alert("SOS_SENT_SUCCESS");
     } catch (err) { console.error(err); }
