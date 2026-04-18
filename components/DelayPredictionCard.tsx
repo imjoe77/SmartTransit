@@ -52,6 +52,7 @@ export default function DelayPredictionCard({ routeId, busId }: Props) {
   const [generatedAt, setGeneratedAt] = useState('')
 
   const fetchPrediction = () => {
+    if (!routeId || !busId) return
     setLoading(true)
     setError(false)
     const now = new Date()
