@@ -109,7 +109,7 @@ You need to run both the Next.js app and the Fatigue Service:
    # uvicorn main:app --port 8000
    ```
 
-
+**Hosted via Render
 ## License
 
 MIT
