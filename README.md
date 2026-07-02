@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="./assets/banner.png" alt="SmartTransit Banner" />
-</p>
-
 # 🚍 SmartTransit
 
 > 🏆 **Hackathon Winning Project**
@@ -9,6 +5,8 @@
 > An AI-powered intelligent public transportation platform that modernizes fleet management through real-time GPS tracking, predictive analytics, driver fatigue detection, AI assistance, and live transit monitoring.
 
 <p align="center">
+<img src="./assets/banner.png" alt="SmartTransit Banner" />
+</p>
 
 ![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
