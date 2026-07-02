@@ -1,115 +1,323 @@
-# CampusRide (Phase 1)
+# 🚍 SmartTransit
 
-CampusRide is a Next.js App Router project for college bus tracking with persistent backend data, student onboarding, and live GPS updates.
+> 🏆 **Hackathon Winning Project**
+>
+> An AI-powered intelligent public transportation platform that modernizes fleet management through real-time GPS tracking, predictive analytics, driver fatigue detection, AI assistance, and live transit monitoring.
 
-## Stack
+<p align="center">
 
-- Next.js + React
-- NextAuth (GitHub + Google)
-- MongoDB + Mongoose
-- Redis (ioredis) for live bus location cache (`bus:live:{busId}` TTL 30s)
-- Socket.IO for real-time GPS ingestion and broadcast
-- Leaflet / React-Leaflet for maps
+![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript)
+![Node.js](https://img.shields.io/badge/Node.js-339933?logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express-000000?logo=express)
+![Socket.IO](https://img.shields.io/badge/Socket.IO-010101?logo=socketdotio)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?logo=mongodb)
+![Python](https://img.shields.io/badge/Python-3776AB?logo=python)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-06B6D4?logo=tailwindcss)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-## Implemented in Phase 1
+</p>
 
-- Persistent models in `models/`: `User`, `Bus`, `Route`, `Notification`
-- MongoDB singleton connection: `lib/mongodb.ts`
-- Redis singleton client: `lib/redis.ts`
-- ETA utility with Haversine: `lib/eta.ts`
-- Socket server singleton + GPS events: `lib/socket.ts`
-- Socket init API: `GET /api/socketio`
-- Role-aware auth + Mongo upsert + onboarding flags in `auth.js`
-- Role/onboarding routing middleware in `middleware.ts`
-- Student onboarding page: `/onboarding`
-- Student profile page: `/profile` (route + boarding stop edits)
-- Driver page: `/driver` with Start Trip / End Trip GPS broadcast
-- Student-centric tracking page `/tracking` with:
-  - My Route cards
-  - Other Routes accordion
-  - Live map with student marker (device geolocation)
-  - Live bus updates via `bus:moved`
+---
 
-## API Routes
+## 🌟 Highlights
 
-- `GET /api/buses`
-- `GET /api/buses/[id]`
-- `GET /api/routes`
-- `GET /api/routes/[id]`
-- `GET /api/notifications`
-- `POST /api/notifications/mark-read`
-- `GET /api/user/profile`
-- `PATCH /api/user/profile`
-- `GET /api/admin/buses`
-- `POST /api/admin/buses`
-- `DELETE /api/admin/buses/[id]`
-- `GET /api/admin/routes`
-- `POST /api/admin/routes`
-- `PATCH /api/admin/routes/[id]`
-- `POST /api/chat`
+- 🏆 Hackathon Winning Project
+- 🚍 AI-powered Smart Transit Platform
+- 📍 Real-time GPS Bus Tracking
+- ⚡ Socket.IO Live Communication
+- 🤖 AI Transit Assistant
+- 🧠 Driver Fatigue Detection
+- 📊 Predictive ETA & Delay Analytics
+- 👨‍💼 Multi-role Dashboard (Admin • Driver • Student)
+- ☁️ Production Deployment on Vercel & Render
 
-## Prerequisites
+---
 
-Before running the application, ensure you have the following installed and running:
+# 📖 Overview
 
-- **Node.js** (v18+)
-- **MongoDB** (Local or Atlas)
-- **Redis** (Required for live tracking cache)
-- **Python 3.10+** (Required for Fatigue Detection Service)
+SmartTransit is a modern intelligent transportation management platform built to improve public transit through real-time communication, artificial intelligence, and predictive analytics.
 
-## Setup
+The platform provides a complete ecosystem for students, drivers, and administrators by combining live vehicle tracking, intelligent ETA prediction, fatigue monitoring, AI-powered assistance, and centralized fleet management into a single scalable application.
 
-1. **Clone and Install Node Dependencies**
-   ```bash
-   git clone <repo-url>
-   cd smarttransit
-   npm install
-   ```
+Unlike traditional GPS tracking systems, SmartTransit focuses on operational intelligence by integrating machine learning, real-time sockets, and cloud-native architecture to enhance both passenger experience and fleet efficiency.
 
-2. **Configure Environment Variables**
-   Copy the example environment file and fill in your credentials:
-   ```bash
-   cp .env.example .env.local
-   ```
-   *Note: Ensure `MONGODB_URI` and `REDIS_URL` are correct.*
+---
 
-3. **Setup Fatigue Detection Service (Python)**
-   ```bash
-   cd fatigue-service
-   python -m venv venv
-   # Windows:
-   .\venv\Scripts\activate
-   # Linux/Mac:
-   source venv/bin/activate
+# ✨ Features
 
-   pip install -r requirements.txt
-   ```
+## 🚍 Real-Time Fleet Management
 
-4. **Seed Database**
-   ```bash
-   # From the smarttransit directory
-   npm run seed
-   ```
+- Live Bus Tracking
+- GPS Position Updates
+- Route Monitoring
+- Arrival Notifications
+- Bus Assignment
+- Driver Console
 
-## Running the Project
+---
 
-You need to run both the Next.js app and the Fatigue Service:
+## 🤖 AI Features
 
-1. **Start Next.js (Terminal 1)**
-   ```bash
-   npm run dev
-   ```
+- AI Transit Assistant
+- Delay Prediction
+- Smart ETA Estimation
+- Operational Insights
+- Intelligent Route Suggestions
 
-2. **Start Fatigue Service (Terminal 2)**
-   ```bash
-   cd fatigue-service
-   # Activate venv if not already active
-   python main.py
-   # Or using uvicorn:
-   # uvicorn main:app --port 8000
-   ```
+---
 
-**Hosted via Render
-## License
+## 😴 Driver Safety
 
-MIT
+- AI Fatigue Detection
+- Driver Monitoring
+- Safety Alerts
+- Health Status Tracking
+
+---
+
+## 👥 User Portals
+
+### 👨‍💼 Admin
+
+- Fleet Management
+- Route Management
+- Driver Management
+- Student Management
+- Analytics Dashboard
+
+### 🚌 Driver
+
+- Start / End Trips
+- Live GPS Broadcast
+- Boarding Status
+- Emergency Controls
+- Route Navigation
+
+### 🎓 Student
+
+- Live Bus Tracking
+- ETA Prediction
+- Bus Status
+- Boarding Updates
+- Route Information
+
+---
+
+# 🏗 System Architecture
+
+```
+                    SmartTransit
+
+                Next.js Frontend
+                       │
+        ┌──────────────┼──────────────┐
+        │              │              │
+        │              │              │
+   Socket Service   Fatigue API   AI Services
+      (Node.js)       (Python)    (OpenRouter)
+
+                       │
+                 MongoDB Database
+```
+
+The application follows a modular architecture by separating real-time communication and AI services into dedicated backend services, improving scalability and maintainability.
+
+---
+
+# 💻 Tech Stack
+
+## Frontend
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- GSAP
+
+## Backend
+
+- Node.js
+- Express.js
+- Socket.IO
+
+## AI & Machine Learning
+
+- OpenRouter API
+- Python
+- Fatigue Detection Service
+
+## Database
+
+- MongoDB
+
+## Authentication
+
+- NextAuth
+
+## Deployment
+
+- Vercel
+- Render
+
+---
+
+# 📂 Project Structure
+
+```
+SmartTransit
+│
+├── app/
+├── components/
+├── lib/
+├── models/
+├── public/
+├── socket-service/
+├── fatigue-service/
+├── scripts/
+├── types/
+├── README.md
+└── .env.example
+```
+
+---
+
+# ⚡ Getting Started
+
+## Clone Repository
+
+```bash
+git clone https://github.com/imjoe77/SmartTransit.git
+```
+
+```bash
+cd SmartTransit
+```
+
+Install dependencies
+
+```bash
+npm install
+```
+
+Run development server
+
+```bash
+npm run dev
+```
+
+---
+
+# 🔐 Environment Variables
+
+Create a `.env.local`
+
+Example
+
+```env
+MONGODB_URI=
+
+NEXTAUTH_URL=
+
+NEXTAUTH_SECRET=
+
+GOOGLE_CLIENT_ID=
+
+GOOGLE_CLIENT_SECRET=
+
+GITHUB_CLIENT_ID=
+
+GITHUB_CLIENT_SECRET=
+
+OPENROUTER_API_KEY=
+
+NEXT_PUBLIC_SOCKET_URL=
+
+SOCKET_SERVICE_URL=
+
+SOCKET_SERVICE_TOKEN=
+
+FATIGUE_SERVICE_URL=
+```
+
+---
+
+# 🌐 Deployment
+
+Frontend
+
+- Vercel
+
+Backend Services
+
+- Render
+
+Database
+
+- MongoDB Atlas
+
+---
+
+
+
+> Add screenshots here
+
+- Landing Page
+- Admin Dashboard
+- Driver Dashboard
+- Student Tracking
+- AI Assistant
+- Route Management
+- Driver Fatigue Detection
+- Mobile Interface
+
+---
+
+# 🚀 Future Improvements
+
+- Push Notifications
+- Offline Bus Tracking
+- Mobile Application
+- Predictive Traffic Analysis
+- Attendance Automation
+- Multi-City Support
+- Fleet Optimization AI
+- Voice Assistant
+
+---
+
+# 🤝 Contributing
+
+Contributions are welcome!
+
+If you'd like to improve SmartTransit:
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Open a Pull Request
+
+---
+
+# 📄 License
+
+This project is licensed under the **MIT License**.
+
+See the [LICENSE](LICENSE) file for details.
+
+MIT License Template:
+https://opensource.org/licenses/MIT
+
+---
+
+# 👨‍💻 Author
+
+**Nathaniel Bandi**
+
+GitHub:
+https://github.com/imjoe77
+
+---
+
+⭐ If you found this project interesting, consider giving it a star!
